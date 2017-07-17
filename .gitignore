@@ -2,3 +2,5 @@
 node_modules/
 gen/
 platforms/
+app/*.js
+app/*/*.js
