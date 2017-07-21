@@ -1,0 +1,16 @@
+{
+  "name": "bluetooth-server",
+  "version": "1.0.0",
+  "main": "run.js",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "node build/run.js"
+  },
+  "dependencies": {
+    "bleno": "^0.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^8.0.9"
+  }
+}
