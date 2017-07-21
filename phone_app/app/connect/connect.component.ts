@@ -50,23 +50,22 @@ export class MainComponent implements OnInit {
     }
 
     peripheralConnected(peripheral) {
+        bluetooth.stopScanning();
         console.log("CONNECTED TO " + JSON.stringify(peripheral));
         var service = peripheral.services[0];
         var characteristic = service.characteristics[0];
 
         console.log("READING FROM PERIPHERAL " + peripheral.UUID + " AT SERVICE " + service.UUID + " USING CHARACTERISTIC " + characteristic.UUID);
 
-        setTimeout(() => {
-            bluetooth.read({
-                peripheralUUID: peripheral.UUID,
-                serviceUUID: service.UUID,
-                characteristicUUID: characteristic.UUID
-            }).then(result => {
-                console.log("Value: " + result.value);
-                console.log("Value raw: " + result.valueRaw);
-            }, err => {
-                console.log("read error: " + err);
-            });
-        }, 1000);
+        bluetooth.read({
+            peripheralUUID: peripheral.UUID,
+            serviceUUID: service.UUID,
+            characteristicUUID: characteristic.UUID
+        }).then(result => {
+            console.log("Value: " + result.value);
+            console.log("Value raw: " + result.valueRaw);
+        }, err => {
+            console.log("read error: " + err);
+        });
     }
 }
