@@ -24,7 +24,7 @@ export class MainComponent implements OnInit {
             bluetooth.requestCoarseLocationPermission();
         }
 
-        console.log(this);
+        console.log("STARTING SCANNING");
 
         bluetooth.startScanning({
             serviceUUIDs: [],
@@ -32,8 +32,6 @@ export class MainComponent implements OnInit {
             onDiscovered: peripheral => {
                 this.peripheralFound(peripheral);
             }
-        }).then(() => console.log("complete")).catch(error => {
-            console.log("error" + error);
         });
     }
 
@@ -48,32 +46,27 @@ export class MainComponent implements OnInit {
             onDisconnected: data => {
                 console.log("Disconnected from " + peripheral.UUID + ", data: " + JSON.stringify(data));
             }
-        }).then(data =>
-            console.log("Connection success: " + JSON.stringify(data))
-        ).catch(error =>
-            console.log("Connection failed: " + JSON.stringify(error)));
+        });
     }
 
-    peripheralConnected(peripheral: bluetooth.Peripheral) {
+    peripheralConnected(peripheral) {
         console.log("CONNECTED TO " + JSON.stringify(peripheral));
+        var service = peripheral.services[0];
+        var characteristic = service.characteristics[0];
 
-        peripheral.services.forEach(service => {
-            service.characteristics.forEach(characteristic => {
-                console.log("READING FROM SERVICE " + service + " USING CHARACTERISTIC " + characteristic);
+        console.log("READING FROM PERIPHERAL " + peripheral.UUID + " AT SERVICE " + service.UUID + " USING CHARACTERISTIC " + characteristic.UUID);
 
-                bluetooth.read({
-                    peripheralUUID: peripheral.UUID,
-                    serviceUUID: service.UUID,
-                    characteristicUUID: characteristic.UUID
-                }).then(result => {
-                    // fi. a heartrate monitor value (Uint8) can be retrieved like this:
-                    var data = new Uint8Array(result.value);
-                    console.log("Your heartrate is: " + data[1] + " bpm");
-                }).then(function (err) {
-                    console.log("read error: " + err);
-                });
-
+        setTimeout(() => {
+            bluetooth.read({
+                peripheralUUID: peripheral.UUID,
+                serviceUUID: service.UUID,
+                characteristicUUID: characteristic.UUID
+            }).then(result => {
+                console.log("Value: " + result.value);
+                console.log("Value raw: " + result.valueRaw);
+            }, err => {
+                console.log("read error: " + err);
             });
-        });
+        }, 1000);
     }
 }

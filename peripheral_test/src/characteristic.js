@@ -1,5 +1,6 @@
 var util = require('util');
 var bleno = require("bleno");
+// var textEncoding = require("text-encoding");
 
 var BlenoCharacteristic = bleno.Characteristic;
 
@@ -19,6 +20,7 @@ util.inherits(EchoCharacteristic, BlenoCharacteristic);
 EchoCharacteristic.prototype.onReadRequest = function (offset, callback) {
     console.log('EchoCharacteristic - onReadRequest: value = ' + this._value.toString('hex'));
 
+    // var value = new textEncoding.TextEncoder().encode(string);
     callback(this.RESULT_SUCCESS, this._value);
 };
 

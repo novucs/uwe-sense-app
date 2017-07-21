@@ -8,7 +8,8 @@
     "start": "node build/run.js"
   },
   "dependencies": {
-    "bleno": "^0.4.2"
+    "bleno": "^0.4.2",
+    "text-encoding": "^0.6.4"
   },
   "devDependencies": {
     "@types/node": "^8.0.9"

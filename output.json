@@ -1,0 +1,67 @@
+{
+  "UUID": "18:5E:0F:E9:E6:29",
+  "name": "echo",
+  "state": "connected",
+  "services": [
+    {
+      "UUID": "1800",
+      "characteristics": [
+        {
+          "UUID": "2a00",
+          "name": "2a00",
+          "properties": {
+            "read": true,
+            "write": false,
+            "writeWithoutResponse": false,
+            "notify": false,
+            "indicate": false,
+            "broadcast": false,
+            "authenticatedSignedWrites": false,
+            "extendedProperties": false
+          },
+          "descriptors": []
+        },
+        {
+          "UUID": "2a01",
+          "name": "2a01",
+          "properties": {
+            "read": true,
+            "write": false,
+            "writeWithoutResponse": false,
+            "notify": false,
+            "indicate": false,
+            "broadcast": false,
+            "authenticatedSignedWrites": false,
+            "extendedProperties": false
+          },
+          "descriptors": []
+        }
+      ]
+    },
+    {
+      "UUID": "1801",
+      "characteristics": [
+        {
+          "UUID": "2a05",
+          "name": "2a05",
+          "properties": {
+            "read": false,
+            "write": false,
+            "writeWithoutResponse": false,
+            "notify": false,
+            "indicate": true,
+            "broadcast": false,
+            "authenticatedSignedWrites": false,
+            "extendedProperties": false
+          },
+          "descriptors": [
+            {
+              "UUID": "2902",
+              "value": null
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
