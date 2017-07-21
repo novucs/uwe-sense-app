@@ -10,6 +10,8 @@ declare const android: any;
 })
 export class MainComponent implements OnInit {
 
+    private _scanDurationSeconds = 4;
+
     constructor() {
     }
 
@@ -19,7 +21,7 @@ export class MainComponent implements OnInit {
         });
     }
 
-    beginScanning(grantedPermission) {
+    beginScanning(grantedPermission): void {
         if (!grantedPermission) {
             bluetooth.requestCoarseLocationPermission();
         }
@@ -28,14 +30,14 @@ export class MainComponent implements OnInit {
 
         bluetooth.startScanning({
             serviceUUIDs: [],
-            seconds: 4,
+            seconds: this._scanDurationSeconds,
             onDiscovered: peripheral => {
                 this.peripheralFound(peripheral);
             }
         });
     }
 
-    peripheralFound(peripheral: bluetooth.Peripheral) {
+    peripheralFound(peripheral: bluetooth.Peripheral): void {
         console.log("PERIPHERAL DISCOVERED, CONNECTING: " + peripheral.UUID);
 
         bluetooth.connect({
@@ -49,23 +51,26 @@ export class MainComponent implements OnInit {
         });
     }
 
-    peripheralConnected(peripheral) {
-        bluetooth.stopScanning();
-        console.log("CONNECTED TO " + JSON.stringify(peripheral));
-        var service = peripheral.services[0];
-        var characteristic = service.characteristics[0];
+    peripheralConnected(peripheral): void {
+        bluetooth.stopScanning().then(() => {
+            console.log("CONNECTED TO " + JSON.stringify(peripheral));
+            var service = peripheral.services[0];
+            var characteristic = service.characteristics[0];
 
-        console.log("READING FROM PERIPHERAL " + peripheral.UUID + " AT SERVICE " + service.UUID + " USING CHARACTERISTIC " + characteristic.UUID);
+            console.log("READING FROM PERIPHERAL " + peripheral.UUID + " AT SERVICE " + service.UUID + " USING CHARACTERISTIC " + characteristic.UUID);
 
-        bluetooth.read({
-            peripheralUUID: peripheral.UUID,
-            serviceUUID: service.UUID,
-            characteristicUUID: characteristic.UUID
-        }).then(result => {
-            console.log("Value: " + result.value);
-            console.log("Value raw: " + result.valueRaw);
-        }, err => {
-            console.log("read error: " + err);
+            setTimeout(() => {
+                bluetooth.read({
+                    peripheralUUID: peripheral.UUID,
+                    serviceUUID: service.UUID,
+                    characteristicUUID: characteristic.UUID
+                }).then(result => {
+                    console.log("Value: " + result.value);
+                    console.log("Value raw: " + result.valueRaw);
+                }, err => {
+                    console.log("read error: " + err);
+                });
+            }, this._scanDurationSeconds * 1000);
         });
     }
 }
