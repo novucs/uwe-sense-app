@@ -3,6 +3,7 @@
 case "$1" in
 ("peripheral")
     echo "Running peripheral"
+    make -C peripheral
     cp peripheral/build/merged/peripheral.hex /run/media/$USER/MBED
     ;;
 
