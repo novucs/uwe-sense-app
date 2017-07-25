@@ -1,6 +1,6 @@
 {
-  "UUID": "18:5E:0F:E9:E6:29",
-  "name": "echo",
+  "UUID": "D5:39:11:E2:E3:12",
+  "name": "Nordic_HRM",
   "state": "connected",
   "services": [
     {
@@ -11,7 +11,7 @@
           "name": "2a00",
           "properties": {
             "read": true,
-            "write": false,
+            "write": true,
             "writeWithoutResponse": false,
             "notify": false,
             "indicate": false,
@@ -35,21 +35,40 @@
             "extendedProperties": false
           },
           "descriptors": []
+        },
+        {
+          "UUID": "2a04",
+          "name": "2a04",
+          "properties": {
+            "read": true,
+            "write": false,
+            "writeWithoutResponse": false,
+            "notify": false,
+            "indicate": false,
+            "broadcast": false,
+            "authenticatedSignedWrites": false,
+            "extendedProperties": false
+          },
+          "descriptors": []
         }
       ]
     },
     {
       "UUID": "1801",
+      "characteristics": []
+    },
+    {
+      "UUID": "180d",
       "characteristics": [
         {
-          "UUID": "2a05",
-          "name": "2a05",
+          "UUID": "2a37",
+          "name": "2a37",
           "properties": {
             "read": false,
             "write": false,
             "writeWithoutResponse": false,
-            "notify": false,
-            "indicate": true,
+            "notify": true,
+            "indicate": false,
             "broadcast": false,
             "authenticatedSignedWrites": false,
             "extendedProperties": false
@@ -60,6 +79,66 @@
               "value": null
             }
           ]
+        },
+        {
+          "UUID": "2a38",
+          "name": "2a38",
+          "properties": {
+            "read": true,
+            "write": false,
+            "writeWithoutResponse": false,
+            "notify": false,
+            "indicate": false,
+            "broadcast": false,
+            "authenticatedSignedWrites": false,
+            "extendedProperties": false
+          },
+          "descriptors": []
+        }
+      ]
+    },
+    {
+      "UUID": "180f",
+      "characteristics": [
+        {
+          "UUID": "2a19",
+          "name": "2a19",
+          "properties": {
+            "read": true,
+            "write": false,
+            "writeWithoutResponse": false,
+            "notify": true,
+            "indicate": false,
+            "broadcast": false,
+            "authenticatedSignedWrites": false,
+            "extendedProperties": false
+          },
+          "descriptors": [
+            {
+              "UUID": "2902",
+              "value": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "UUID": "180a",
+      "characteristics": [
+        {
+          "UUID": "2a29",
+          "name": "2a29",
+          "properties": {
+            "read": true,
+            "write": false,
+            "writeWithoutResponse": false,
+            "notify": false,
+            "indicate": false,
+            "broadcast": false,
+            "authenticatedSignedWrites": false,
+            "extendedProperties": false
+          },
+          "descriptors": []
         }
       ]
     }

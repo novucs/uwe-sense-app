@@ -12,6 +12,7 @@ var EchoCharacteristic = function () {
     });
 
     this._value = new Buffer(0);
+    console.log("Item: " + JSON.stringify(this._value));
     this._updateValueCallback = null;
 };
 
@@ -20,7 +21,7 @@ util.inherits(EchoCharacteristic, BlenoCharacteristic);
 EchoCharacteristic.prototype.onReadRequest = function (offset, callback) {
     console.log('EchoCharacteristic - onReadRequest: value = ' + this._value.toString('hex'));
 
-    // var value = new textEncoding.TextEncoder().encode(string);
+    // var value = new textEncoding.TextEncoder().encode("Hello Friend");
     callback(this.RESULT_SUCCESS, this._value);
 };
 

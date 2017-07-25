@@ -1,6 +1,9 @@
 # Main project
 .idea/
 
+# Peripheral
+peripheral/build/
+
 # Peripheral test
 peripheral_test/build/
 peripheral_test/node_modules/
