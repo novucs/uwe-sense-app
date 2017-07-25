@@ -219,7 +219,7 @@ LDFLAGS += --specs=nano.specs -lc -lnosys
 default: peripheral merge
 
 merge: peripheral
-	mkdir build/merged
+	mkdir -p build/merged
 	mergehex --merge \
 	$(OUTPUT_DIRECTORY)/peripheral.hex \
 	$(NORDIC_SDK)/components/softdevice/s130/hex/s130_nrf51_2.0.1_softdevice.hex \

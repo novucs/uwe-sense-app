@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 
 case "$1" in
+("peripheral")
+    echo "Running peripheral"
+    cp peripheral/build/merged/peripheral.hex /run/media/$USER/MBED
+    ;;
+
 ("peripheral_test")
     echo "Running peripheral test"
     cd peripheral_test/src

@@ -1,10 +1,21 @@
 #!/usr/bin/env bash
 
-cd peripheral
-make
+case "$1" in
+("peripheral")
+    make -C peripheral
+    ;;
 
-cd ../peripheral_test
-npm install
+("peripheral_test")
+    npm install --prefix peripheral_test
+    ;;
 
-cd ../phone_app/
-npm install
+("phone_app")
+    npm install --prefix phone_app
+    ;;
+
+(*)
+    make -C peripheral
+    npm install --prefix peripheral_test
+    npm install --prefix phone_app
+    ;;
+esac
