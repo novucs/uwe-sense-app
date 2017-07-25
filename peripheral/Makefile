@@ -11,6 +11,7 @@ $(OUTPUT_DIRECTORY)/peripheral.out: \
 # Source files common to all targets
 SRC_FILES += \
   $(PROJ_DIR)/main.c \
+  $(PROJ_DIR)/air_monitor_service.c \
   $(NORDIC_SDK)/components/libraries/log/src/nrf_log_backend_serial.c \
   $(NORDIC_SDK)/components/libraries/log/src/nrf_log_frontend.c \
   $(NORDIC_SDK)/components/libraries/button/app_button.c \
@@ -187,7 +188,7 @@ CFLAGS +=  -Wall -Werror -O3 -g3
 CFLAGS += -mfloat-abi=soft
 # keep every function in separate section, this allows linker to discard unused ones
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
-CFLAGS += -fno-builtin --short-enums 
+CFLAGS += -fno-builtin --short-enums
 
 # C++ flags common to all targets
 CXXFLAGS += \
@@ -245,7 +246,7 @@ flash: $(OUTPUT_DIRECTORY)/peripheral.hex
 # Flash softdevice
 flash_softdevice:
 	@echo Flashing: s130_nrf51_2.0.1_softdevice.hex
-	nrfjprog --program $(NORDIC_SDK)/components/softdevice/s130/hex/s130_nrf51_2.0.1_softdevice.hex -f nrf51 --sectorerase 
+	nrfjprog --program $(NORDIC_SDK)/components/softdevice/s130/hex/s130_nrf51_2.0.1_softdevice.hex -f nrf51 --sectorerase
 	nrfjprog --reset -f nrf51
 
 erase:

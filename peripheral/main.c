@@ -1,30 +1,30 @@
 /**
  * Copyright (c) 2014 - 2017, Nordic Semiconductor ASA
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice, this
  *    list of conditions and the following disclaimer.
- * 
+ *
  * 2. Redistributions in binary form, except as embedded into a Nordic
  *    Semiconductor ASA integrated circuit in a product or a software update for
  *    such product, must reproduce the above copyright notice, this list of
  *    conditions and the following disclaimer in the documentation and/or other
  *    materials provided with the distribution.
- * 
+ *
  * 3. Neither the name of Nordic Semiconductor ASA nor the names of its
  *    contributors may be used to endorse or promote products derived from this
  *    software without specific prior written permission.
- * 
+ *
  * 4. This software, with or without modification, must only be used with a
  *    Nordic Semiconductor ASA integrated circuit.
- * 
+ *
  * 5. Any software provided in binary form under this license must not be reverse
  *    engineered, decompiled, modified and/or disassembled.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY NORDIC SEMICONDUCTOR ASA "AS IS" AND ANY EXPRESS
  * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
  * OF MERCHANTABILITY, NONINFRINGEMENT, AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -35,7 +35,7 @@
  * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 /** @example examples/ble_peripheral/ble_app_hrs/main.c
  *
@@ -48,7 +48,7 @@
 
 #include <stdint.h>
 #include <string.h>
-#include "nordic_common.h"
+#include <nordic_common.h>
 #include "nrf.h"
 #include "app_error.h"
 #include "ble.h"
@@ -73,6 +73,8 @@
 #include "nrf_ble_gatt.h"
 #include "ble_conn_state.h"
 
+#include "air_monitor_service.h"
+
 #define NRF_LOG_MODULE_NAME "APP"
 
 #include "nrf_log.h"
@@ -87,6 +89,11 @@
 
 #define APP_TIMER_PRESCALER              0                                           /**< Value of the RTC1 PRESCALER register. */
 #define APP_TIMER_OP_QUEUE_SIZE          4                                           /**< Size of timer operation queues. */
+
+#define AIR_MONITOR_BATTERY_LEVEL_MEAS_INTERVAL      APP_TIMER_TICKS(2000, APP_TIMER_PRESCALER)
+#define AIR_MONITOR_MIN_BATTERY_LEVEL                81
+#define AIR_MONITOR_MAX_BATTERY_LEVEL                100
+#define AIR_MONITOR_BATTERY_LEVEL_INCREMENT          1
 
 #define BATTERY_LEVEL_MEAS_INTERVAL      APP_TIMER_TICKS(2000, APP_TIMER_PRESCALER)  /**< Battery level measurement interval (ticks). */
 #define MIN_BATTERY_LEVEL                81                                          /**< Minimum simulated battery level. */
@@ -129,11 +136,15 @@
 
 
 static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID;                             /**< Handle of the current connection. */
+static air_monitor_t m_apm;
 static ble_bas_t m_bas;                                                              /**< Structure used to identify the battery service. */
 static ble_hrs_t m_hrs;                                                              /**< Structure used to identify the heart rate service. */
 static bool m_rr_interval_enabled = true;                                            /**< Flag for enabling and disabling the registration of new RR interval measurements (the purpose of disabling this is just to test sending HRM without RR interval data. */
 
 static nrf_ble_gatt_t m_gatt;                                                        /**< Structure for gatt module*/
+
+static sensorsim_cfg_t m_air_monitor_battery_sim_cfg;
+static sensorsim_state_t m_air_monitor_battery_sim_state;
 
 static sensorsim_cfg_t m_battery_sim_cfg;                                            /**< Battery Level sensor simulator configuration. */
 static sensorsim_state_t m_battery_sim_state;                                        /**< Battery Level sensor simulator state. */
@@ -148,9 +159,12 @@ APP_TIMER_DEF(m_rr_interval_timer_id);                                          
 APP_TIMER_DEF(m_sensor_contact_timer_id);                                            /**< Sensor contact detected timer. */
 
 
-static ble_uuid_t m_adv_uuids[] = {{BLE_UUID_HEART_RATE_SERVICE,         BLE_UUID_TYPE_BLE},
-                                   {BLE_UUID_BATTERY_SERVICE,            BLE_UUID_TYPE_BLE},
-                                   {BLE_UUID_DEVICE_INFORMATION_SERVICE, BLE_UUID_TYPE_BLE}}; /**< Universally unique service identifiers. */
+static ble_uuid_t m_adv_uuids[] = {
+        {BLE_UUID_AIR_MONITOR_SERVICE,        BLE_UUID_TYPE_BLE},
+        {BLE_UUID_HEART_RATE_SERVICE,         BLE_UUID_TYPE_BLE},
+        {BLE_UUID_BATTERY_SERVICE,            BLE_UUID_TYPE_BLE},
+        {BLE_UUID_DEVICE_INFORMATION_SERVICE, BLE_UUID_TYPE_BLE}
+}; /**< Universally unique service identifiers. */
 
 /**@brief Callback function for asserts in the SoftDevice.
  *
@@ -470,10 +484,29 @@ static void gap_params_init(void) {
  */
 static void services_init(void) {
     uint32_t err_code;
+    air_monitor_init_t apm_init;
     ble_hrs_init_t hrs_init;
     ble_bas_init_t bas_init;
     ble_dis_init_t dis_init;
     uint8_t body_sensor_location;
+
+    // Initialize Air Pollution Monitor Service.
+    memset(&apm_init, 0, sizeof(apm_init));
+
+    // Here the sec level for the Battery Service can be changed/increased.
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&apm_init.battery_level_char_attr_md.cccd_write_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&apm_init.battery_level_char_attr_md.read_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&apm_init.battery_level_char_attr_md.write_perm);
+
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&apm_init.battery_level_report_read_perm);
+
+    apm_init.evt_handler = NULL;
+    apm_init.support_notification = true;
+    apm_init.p_report_ref = NULL;
+    apm_init.initial_batt_level = 95;
+
+    err_code = air_monitor_init(&m_apm, &apm_init);
+    APP_ERROR_CHECK(err_code);
 
     // Initialize Heart Rate Service.
     body_sensor_location = BLE_HRS_BODY_SENSOR_LOCATION_FINGER;
@@ -529,6 +562,13 @@ static void services_init(void) {
 /**@brief Function for initializing the sensor simulators.
  */
 static void sensor_simulator_init(void) {
+    m_air_monitor_battery_sim_cfg.min = AIR_MONITOR_MIN_BATTERY_LEVEL;
+    m_air_monitor_battery_sim_cfg.max = AIR_MONITOR_MAX_BATTERY_LEVEL;
+    m_air_monitor_battery_sim_cfg.incr = BATTERY_LEVEL_INCREMENT;
+    m_air_monitor_battery_sim_cfg.start_at_max = true;
+
+    sensorsim_init(&m_air_monitor_battery_sim_state, &m_air_monitor_battery_sim_cfg);
+
     m_battery_sim_cfg.min = MIN_BATTERY_LEVEL;
     m_battery_sim_cfg.max = MAX_BATTERY_LEVEL;
     m_battery_sim_cfg.incr = BATTERY_LEVEL_INCREMENT;
@@ -1001,5 +1041,3 @@ int main(void) {
         }
     }
 }
-
-

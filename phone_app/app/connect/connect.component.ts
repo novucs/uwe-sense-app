@@ -42,12 +42,7 @@ export class MainComponent implements OnInit {
     peripheralFound(peripheral: bluetooth.Peripheral): void {
         // D5:39:11:E2:E3:12 - Probably the RedBear
 
-        if (peripheral.UUID == "7C:75:C0:45:EA:05" || // Apple watch
-            peripheral.UUID == "6E:A0:0F:56:73:BF" || // Poppy’s MacBook Pro
-            peripheral.UUID == "AC:BC:32:90:E2:40" || // Poppy’s MacBook Pro
-            peripheral.UUID == "B8:E8:56:40:E4:AF" || // STAFF-JIM-SMITH
-            peripheral.UUID == "47:12:A5:03:50:16" || // null
-            peripheral.UUID == "59:06:53:59:E3:72") { // iPhone
+        if (peripheral.UUID != "D5:39:11:E2:E3:12") {
             console.log("IGNORING " + peripheral.UUID);
             return;
         }

@@ -1,6 +1,6 @@
 {
   "UUID": "D5:39:11:E2:E3:12",
-  "name": "Nordic_HRM",
+  "name": "Air_Pollutio",
   "state": "connected",
   "services": [
     {
@@ -56,6 +56,31 @@
     {
       "UUID": "1801",
       "characteristics": []
+    },
+    {
+      "UUID": "1337",
+      "characteristics": [
+        {
+          "UUID": "2a19",
+          "name": "2a19",
+          "properties": {
+            "read": true,
+            "write": false,
+            "writeWithoutResponse": false,
+            "notify": true,
+            "indicate": false,
+            "broadcast": false,
+            "authenticatedSignedWrites": false,
+            "extendedProperties": false
+          },
+          "descriptors": [
+            {
+              "UUID": "2902",
+              "value": null
+            }
+          ]
+        }
+      ]
     },
     {
       "UUID": "180d",
