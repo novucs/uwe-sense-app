@@ -4,6 +4,8 @@ import {TextDecoder} from "text-encoding";
 
 declare const android: any;
 
+const AIR_MONITOR_SERVICE_ID = "1337";
+
 export interface SensorData {
     serialId: string,
     particlesPerBillion: number,
@@ -34,25 +36,6 @@ export class MainComponent implements OnInit {
         bluetooth.hasCoarseLocationPermission().then(granted => {
             this.beginScanning(granted);
         });
-
-        // var output = JSON.parse("[\"110816020537\", \"2224\", \"28\", \"50\", \"13518\", \"28172\", \"29466\", \"00\", \"00\", \"55\", \"16\"]");
-        // const output = "110816020537, 2224, 28, 50, 13518, 28172, 29466, 00, 00, 55, 16".split(", ");
-        //
-        // const data: SensorData = {
-        //     serialId: output[0],
-        //     particlesPerBillion: +output[1],
-        //     temperature: +output[2],
-        //     relativeHumidity: +output[3],
-        //     rawSensor: +output[4],
-        //     digitalTemperature: +output[5],
-        //     digitalRelativeHumidity: +output[6],
-        //     day: +output[7],
-        //     hour: +output[8],
-        //     minute: +output[9],
-        //     second: +output[10]
-        // };
-        //
-        // console.log(JSON.stringify(data));
     }
 
     beginScanning(grantedPermission): void {
@@ -63,7 +46,7 @@ export class MainComponent implements OnInit {
         setInterval(() => {
             console.log("STARTING SCANNING");
             bluetooth.startScanning({
-                serviceUUIDs: [],
+                serviceUUIDs: [AIR_MONITOR_SERVICE_ID],
                 seconds: this._scanDurationSeconds,
                 onDiscovered: peripheral => {
                     this.peripheralFound(peripheral);
@@ -73,13 +56,6 @@ export class MainComponent implements OnInit {
     }
 
     peripheralFound(peripheral: bluetooth.Peripheral): void {
-        // D5:39:11:E2:E3:12 - Probably the RedBear
-
-        if (peripheral.UUID != "D5:39:11:E2:E3:12") {
-            console.log("IGNORING " + peripheral.UUID);
-            return;
-        }
-
         console.log("PERIPHERAL DISCOVERED, CONNECTING: " + peripheral.UUID);
 
         bluetooth.connect({
@@ -96,8 +72,13 @@ export class MainComponent implements OnInit {
     peripheralConnected(peripheral): void {
         bluetooth.stopScanning().then(() => {
             console.log("CONNECTED TO " + JSON.stringify(peripheral));
-            var service = peripheral.services[2];
-            var characteristic = service.characteristics[0];
+            const service = MainComponent.getAirMonitorService(peripheral);
+
+            if (service == null) {
+                return;
+            }
+
+            const characteristic = service.characteristics[0];
 
             console.log("READING FROM PERIPHERAL " + peripheral.UUID + " AT SERVICE " + service.UUID + " USING CHARACTERISTIC " + characteristic.UUID);
 
@@ -107,15 +88,6 @@ export class MainComponent implements OnInit {
                     serviceUUID: service.UUID,
                     characteristicUUID: characteristic.UUID
                 }).then(result => {
-                    console.log("Value: " + JSON.stringify(result.value));
-                    console.log("Value raw: " + result.valueRaw);
-
-                    // result.value is an ArrayBuffer. Every service has a different encoding.
-                    // fi. a heartrate monitor value can be retrieved by:
-                    // var data = new Uint8Array(result.value);
-                    // var heartRate = data[1];
-                    // console.log(heartRate);
-
                     const output = new TextDecoder("UTF-8").decode(result.value).split(", ");
 
                     const data: SensorData = {
@@ -133,16 +105,21 @@ export class MainComponent implements OnInit {
                     };
 
                     console.log(JSON.stringify(data));
-
-                    // function buf2hex(buffer) {
-                    //     return Array.prototype.map.call(new Uint8Array(buffer), x => ('00' + x.toString(16)).slice(-2)).join('');
-                    // }
-                    //
-                    // console.log(buf2hex(result.value)); // = 04080c10
                 }, err => {
                     console.log("read error: " + err);
                 });
             }, this._scanDurationSeconds * 1000);
         });
+    }
+
+    static getAirMonitorService(peripheral) {
+        for (let i = 0; i < peripheral.services.length; i++) {
+            const service = peripheral.services[i];
+
+            if (service.UUID == AIR_MONITOR_SERVICE_ID) {
+                return service;
+            }
+        }
+        return null;
     }
 }
