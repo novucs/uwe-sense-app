@@ -63,7 +63,7 @@ export class MainComponent implements OnInit {
     peripheralConnected(peripheral): void {
         bluetooth.stopScanning().then(() => {
             console.log("CONNECTED TO " + JSON.stringify(peripheral));
-            var service = peripheral.services[0];
+            var service = peripheral.services[2];
             var characteristic = service.characteristics[0];
 
             console.log("READING FROM PERIPHERAL " + peripheral.UUID + " AT SERVICE " + service.UUID + " USING CHARACTERISTIC " + characteristic.UUID);

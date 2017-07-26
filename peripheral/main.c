@@ -46,6 +46,7 @@
  * @ref srvlib_conn_params module.
  */
 
+#include <stdio.h>
 #include <stdint.h>
 #include <string.h>
 #include <nordic_common.h>
@@ -503,7 +504,27 @@ static void services_init(void) {
     apm_init.evt_handler = NULL;
     apm_init.support_notification = true;
     apm_init.p_report_ref = NULL;
-    apm_init.initial_batt_level = 95;
+
+    // 110816020537, 2224, 28, 50, 13518, 28172, 29466, 00, 00, 55, 16
+//    u_long serial_id = 110816020537;
+//    long particles_per_billion = 2224;
+//    long temperature = 28;
+//    long relative_humidity = 50;
+//    long raw_sensor = 13518;
+//    long digital_temperature = 28172;
+//    long digital_relative_humidity = 29466;
+//    long day = 00;
+//    long hour = 00;
+//    long minute = 55;
+//    long second = 16;
+//    sprintf(apm_init.initial_batt_level, "[%ld, %ld, %ld, %ld, %ld, %ld, %ld, %ld, %ld, %ld, %ld]",
+//            serial_id, particles_per_billion, temperature, relative_humidity, raw_sensor, digital_temperature,
+//            digital_relative_humidity, day, hour, minute, second);
+
+    char *output = "110816020537, 2224, 28, 50, 13518, 28172, 29466, 00, 00, 55, 16";
+    sprintf(apm_init.initial_batt_level, "[%s]", output);
+
+//    apm_init.initial_batt_level = 95;
 
     err_code = air_monitor_init(&m_apm, &apm_init);
     APP_ERROR_CHECK(err_code);
