@@ -4,6 +4,20 @@ import {TextDecoder} from "text-encoding";
 
 declare const android: any;
 
+export interface SensorData {
+    serialId: string,
+    particlesPerBillion: number,
+    temperature: number,
+    relativeHumidity: number,
+    rawSensor: number,
+    digitalTemperature: number,
+    digitalRelativeHumidity: number,
+    day: number,
+    hour: number,
+    minute: number,
+    second: number
+}
+
 @Component({
     selector: "ns-items",
     moduleId: module.id,
@@ -20,6 +34,25 @@ export class MainComponent implements OnInit {
         bluetooth.hasCoarseLocationPermission().then(granted => {
             this.beginScanning(granted);
         });
+
+        // var output = JSON.parse("[\"110816020537\", \"2224\", \"28\", \"50\", \"13518\", \"28172\", \"29466\", \"00\", \"00\", \"55\", \"16\"]");
+        // const output = "110816020537, 2224, 28, 50, 13518, 28172, 29466, 00, 00, 55, 16".split(", ");
+        //
+        // const data: SensorData = {
+        //     serialId: output[0],
+        //     particlesPerBillion: +output[1],
+        //     temperature: +output[2],
+        //     relativeHumidity: +output[3],
+        //     rawSensor: +output[4],
+        //     digitalTemperature: +output[5],
+        //     digitalRelativeHumidity: +output[6],
+        //     day: +output[7],
+        //     hour: +output[8],
+        //     minute: +output[9],
+        //     second: +output[10]
+        // };
+        //
+        // console.log(JSON.stringify(data));
     }
 
     beginScanning(grantedPermission): void {
@@ -83,8 +116,23 @@ export class MainComponent implements OnInit {
                     // var heartRate = data[1];
                     // console.log(heartRate);
 
-                    var string = new TextDecoder("UTF-8").decode(result.value);
-                    console.log("String: " + string);
+                    const output = new TextDecoder("UTF-8").decode(result.value).split(", ");
+
+                    const data: SensorData = {
+                        serialId: output[0],
+                        particlesPerBillion: +output[1],
+                        temperature: +output[2],
+                        relativeHumidity: +output[3],
+                        rawSensor: +output[4],
+                        digitalTemperature: +output[5],
+                        digitalRelativeHumidity: +output[6],
+                        day: +output[7],
+                        hour: +output[8],
+                        minute: +output[9],
+                        second: +output[10]
+                    };
+
+                    console.log(JSON.stringify(data));
 
                     // function buf2hex(buffer) {
                     //     return Array.prototype.map.call(new Uint8Array(buffer), x => ('00' + x.toString(16)).slice(-2)).join('');

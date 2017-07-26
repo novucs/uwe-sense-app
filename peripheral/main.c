@@ -522,7 +522,7 @@ static void services_init(void) {
 //            digital_relative_humidity, day, hour, minute, second);
 
     char *output = "110816020537, 2224, 28, 50, 13518, 28172, 29466, 00, 00, 55, 16";
-    sprintf(apm_init.initial_batt_level, "[%s]", output);
+    sprintf(apm_init.initial_batt_level, "%s", output);
 
 //    apm_init.initial_batt_level = 95;
 
