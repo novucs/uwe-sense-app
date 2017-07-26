@@ -1,6 +1,7 @@
 import {Component, OnInit} from "@angular/core";
 import * as bluetooth from "nativescript-bluetooth";
 import {TextDecoder} from "text-encoding";
+import {ApiService, SensorEntryPPB} from "../app.service";
 
 declare const android: any;
 
@@ -29,7 +30,7 @@ export class MainComponent implements OnInit {
 
     private _scanDurationSeconds = 4;
 
-    constructor() {
+    constructor(private api: ApiService) {
     }
 
     ngOnInit(): void {
@@ -105,6 +106,14 @@ export class MainComponent implements OnInit {
                     };
 
                     console.log(JSON.stringify(data));
+
+                    const entry: SensorEntryPPB = {
+                        uuid: peripheral.uuid,
+                        timestamp: new Date(),
+                        data: data.particlesPerBillion
+                    };
+
+                    this.api.submitSensorEntryPPB(entry);
                 }, err => {
                     console.log("read error: " + err);
                 });

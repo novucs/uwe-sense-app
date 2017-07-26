@@ -4,6 +4,7 @@ import {AppRoutingModule} from "./app.routing";
 import {AppComponent} from "./app.component";
 
 import {MainComponent} from "./connect/connect.component";
+import {ApiService} from "./app.service";
 
 @NgModule({
     bootstrap: [
@@ -17,7 +18,9 @@ import {MainComponent} from "./connect/connect.component";
         AppComponent,
         MainComponent
     ],
-    providers: [],
+    providers: [
+        ApiService
+    ],
     schemas: [
         NO_ERRORS_SCHEMA
     ]
