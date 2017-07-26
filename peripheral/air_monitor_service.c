@@ -259,7 +259,7 @@ uint32_t air_monitor_init(air_monitor_t *p_bas, const air_monitor_init_t *p_bas_
 }
 
 
-uint32_t air_monitor_battery_level_update(air_monitor_t *p_bas, uint8_t battery_level) {
+uint32_t air_monitor_update(air_monitor_t *p_bas, uint8_t battery_level) {
     if (p_bas == NULL) {
         return NRF_ERROR_NULL;
     }

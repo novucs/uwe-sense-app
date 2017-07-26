@@ -157,7 +157,7 @@ void air_monitor_on_ble_evt(air_monitor_t *p_bas, ble_evt_t *p_ble_evt);
  *
  * @return      NRF_SUCCESS on success, otherwise an error code.
  */
-uint32_t air_monitor_battery_level_update(air_monitor_t *p_bas, uint8_t battery_level);
+uint32_t air_monitor_update(air_monitor_t *p_bas, uint8_t battery_level);
 
 
 #ifdef __cplusplus
