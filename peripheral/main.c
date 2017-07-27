@@ -266,8 +266,15 @@ static void pm_evt_handler(pm_evt_t const *p_evt) {
     }
 }
 
+static int m_timer = 0;
+static char m_air_level[128];
+
 static char * read_air_sensor() {
-    return "test test test, 2224, 28, 50, 13518, 28172, 29466, 00, 00, 55, 16";
+    m_timer++;
+
+    sprintf(m_air_level, "Timer %d, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0", m_timer);
+
+    return m_air_level;
 }
 
 

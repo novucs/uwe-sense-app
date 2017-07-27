@@ -181,7 +181,7 @@ static uint32_t air_level_char_add(air_monitor_t *p_bas, const air_monitor_init_
     attr_char_value.init_len = strlen(initial_air_level);
     attr_char_value.init_offs = 0;
     attr_char_value.max_len = strlen(initial_air_level);
-    attr_char_value.p_value = (uint8_t*) initial_air_level;
+    attr_char_value.p_value = (uint8_t *) initial_air_level;
 
     err_code = sd_ble_gatts_characteristic_add(p_bas->service_handle,
                                                &char_md,
@@ -265,14 +265,14 @@ uint32_t air_monitor_update(air_monitor_t *p_bas, char *air_level) {
     uint32_t err_code = NRF_SUCCESS;
     ble_gatts_value_t gatts_value;
 
-    if (air_level != p_bas->air_level_last) {
-        return err_code;
-    }
+//    if (air_level == p_bas->air_level_last) {
+//        return err_code;
+//    }
 
     // Initialize value struct.
     memset(&gatts_value, 0, sizeof(gatts_value));
 
-    gatts_value.len = sizeof(uint8_t);
+    gatts_value.len = strlen(air_level) - 2;
     gatts_value.offset = 0;
     gatts_value.p_value = (uint8_t*) air_level;
 
