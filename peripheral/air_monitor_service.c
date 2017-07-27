@@ -49,9 +49,6 @@
 #include "ble_srv_common.h"
 
 
-#define INVALID_BATTERY_LEVEL 255
-
-
 /**@brief Function for handling the Connect event.
  *
  * @param[in]   p_bas       Battery Service structure.
@@ -82,7 +79,7 @@ static void on_write(air_monitor_t *p_bas, ble_evt_t *p_ble_evt) {
     if (p_bas->is_notification_supported) {
         ble_gatts_evt_write_t *p_evt_write = &p_ble_evt->evt.gatts_evt.params.write;
 
-        if ((p_evt_write->handle == p_bas->battery_level_handles.cccd_handle) &&
+        if ((p_evt_write->handle == p_bas->air_level_handles.cccd_handle) &&
             (p_evt_write->len == 2) &&
             p_bas->evt_handler != NULL) {
 
@@ -132,14 +129,14 @@ void air_monitor_on_ble_evt(air_monitor_t *p_bas, ble_evt_t *p_ble_evt) {
  *
  * @return      NRF_SUCCESS on success, otherwise an error code.
  */
-static uint32_t air_monitor_battery_level_char_add(air_monitor_t *p_bas, const air_monitor_init_t *p_bas_init) {
+static uint32_t air_level_char_add(air_monitor_t *p_bas, const air_monitor_init_t *p_bas_init) {
     uint32_t err_code;
     ble_gatts_char_md_t char_md;
     ble_gatts_attr_md_t cccd_md;
     ble_gatts_attr_t attr_char_value;
     ble_uuid_t ble_uuid;
     ble_gatts_attr_md_t attr_md;
-//    char *initial_battery_level;
+//    char *initial_air_level;
     uint8_t encoded_report_ref[BLE_SRV_ENCODED_REPORT_REF_LEN];
     uint8_t init_len;
 
@@ -150,7 +147,7 @@ static uint32_t air_monitor_battery_level_char_add(air_monitor_t *p_bas, const a
         // According to BAS_SPEC_V10, the read operation on cccd should be possible without
         // authentication.
         BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.read_perm);
-        cccd_md.write_perm = p_bas_init->battery_level_char_attr_md.cccd_write_perm;
+        cccd_md.write_perm = p_bas_init->air_level_char_attr_md.cccd_write_perm;
         cccd_md.vloc = BLE_GATTS_VLOC_STACK;
     }
 
@@ -168,27 +165,28 @@ static uint32_t air_monitor_battery_level_char_add(air_monitor_t *p_bas, const a
 
     memset(&attr_md, 0, sizeof(attr_md));
 
-    attr_md.read_perm = p_bas_init->battery_level_char_attr_md.read_perm;
-    attr_md.write_perm = p_bas_init->battery_level_char_attr_md.write_perm;
+    attr_md.read_perm = p_bas_init->air_level_char_attr_md.read_perm;
+    attr_md.write_perm = p_bas_init->air_level_char_attr_md.write_perm;
     attr_md.vloc = BLE_GATTS_VLOC_STACK;
     attr_md.rd_auth = 0;
     attr_md.wr_auth = 0;
     attr_md.vlen = 0;
 
-    const char *initial_battery_level = p_bas_init->initial_batt_level;
+    const char *initial_air_level = p_bas_init->initial_batt_level;
 
     memset(&attr_char_value, 0, sizeof(attr_char_value));
 
     attr_char_value.p_uuid = &ble_uuid;
     attr_char_value.p_attr_md = &attr_md;
-    attr_char_value.init_len = strlen(initial_battery_level);
+    attr_char_value.init_len = strlen(initial_air_level);
     attr_char_value.init_offs = 0;
-    attr_char_value.max_len = strlen(initial_battery_level);
-    attr_char_value.p_value = (uint8_t*) initial_battery_level;
+    attr_char_value.max_len = strlen(initial_air_level);
+    attr_char_value.p_value = (uint8_t*) initial_air_level;
 
-    err_code = sd_ble_gatts_characteristic_add(p_bas->service_handle, &char_md,
+    err_code = sd_ble_gatts_characteristic_add(p_bas->service_handle,
+                                               &char_md,
                                                &attr_char_value,
-                                               &p_bas->battery_level_handles);
+                                               &p_bas->air_level_handles);
     if (err_code != NRF_SUCCESS) {
         return err_code;
     }
@@ -199,7 +197,7 @@ static uint32_t air_monitor_battery_level_char_add(air_monitor_t *p_bas, const a
 
         memset(&attr_md, 0, sizeof(attr_md));
 
-        attr_md.read_perm = p_bas_init->battery_level_report_read_perm;
+        attr_md.read_perm = p_bas_init->air_level_report_read_perm;
         BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&attr_md.write_perm);
 
         attr_md.vloc = BLE_GATTS_VLOC_STACK;
@@ -218,7 +216,7 @@ static uint32_t air_monitor_battery_level_char_add(air_monitor_t *p_bas, const a
         attr_char_value.max_len = attr_char_value.init_len;
         attr_char_value.p_value = encoded_report_ref;
 
-        err_code = sd_ble_gatts_descriptor_add(p_bas->battery_level_handles.value_handle,
+        err_code = sd_ble_gatts_descriptor_add(p_bas->air_level_handles.value_handle,
                                                &attr_char_value,
                                                &p_bas->report_ref_handle);
         if (err_code != NRF_SUCCESS) {
@@ -244,7 +242,7 @@ uint32_t air_monitor_init(air_monitor_t *p_bas, const air_monitor_init_t *p_bas_
     p_bas->evt_handler = p_bas_init->evt_handler;
     p_bas->conn_handle = BLE_CONN_HANDLE_INVALID;
     p_bas->is_notification_supported = p_bas_init->support_notification;
-    p_bas->battery_level_last = INVALID_BATTERY_LEVEL;
+//    p_bas->air_level_last = INVALID_BATTERY_LEVEL;
 
     // Add service
     BLE_UUID_BLE_ASSIGN(ble_uuid, BLE_UUID_AIR_MONITOR_SERVICE);
@@ -255,11 +253,11 @@ uint32_t air_monitor_init(air_monitor_t *p_bas, const air_monitor_init_t *p_bas_
     }
 
     // Add battery level characteristic
-    return air_monitor_battery_level_char_add(p_bas, p_bas_init);
+    return air_level_char_add(p_bas, p_bas_init);
 }
 
 
-uint32_t air_monitor_update(air_monitor_t *p_bas, uint8_t battery_level) {
+uint32_t air_monitor_update(air_monitor_t *p_bas, char *air_level) {
     if (p_bas == NULL) {
         return NRF_ERROR_NULL;
     }
@@ -267,7 +265,7 @@ uint32_t air_monitor_update(air_monitor_t *p_bas, uint8_t battery_level) {
     uint32_t err_code = NRF_SUCCESS;
     ble_gatts_value_t gatts_value;
 
-    if (battery_level != p_bas->battery_level_last) {
+    if (air_level != p_bas->air_level_last) {
         return err_code;
     }
 
@@ -276,15 +274,15 @@ uint32_t air_monitor_update(air_monitor_t *p_bas, uint8_t battery_level) {
 
     gatts_value.len = sizeof(uint8_t);
     gatts_value.offset = 0;
-    gatts_value.p_value = &battery_level;
+    gatts_value.p_value = (uint8_t*) air_level;
 
     // Update database.
     err_code = sd_ble_gatts_value_set(p_bas->conn_handle,
-                                      p_bas->battery_level_handles.value_handle,
+                                      p_bas->air_level_handles.value_handle,
                                       &gatts_value);
     if (err_code == NRF_SUCCESS) {
         // Save new battery value.
-        p_bas->battery_level_last = battery_level;
+        p_bas->air_level_last = air_level;
     } else {
         return err_code;
     }
@@ -295,7 +293,7 @@ uint32_t air_monitor_update(air_monitor_t *p_bas, uint8_t battery_level) {
 
         memset(&hvx_params, 0, sizeof(hvx_params));
 
-        hvx_params.handle = p_bas->battery_level_handles.value_handle;
+        hvx_params.handle = p_bas->air_level_handles.value_handle;
         hvx_params.type = BLE_GATT_HVX_NOTIFICATION;
         hvx_params.offset = gatts_value.offset;
         hvx_params.p_len = &gatts_value.len;

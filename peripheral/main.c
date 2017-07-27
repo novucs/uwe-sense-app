@@ -120,8 +120,8 @@ static air_monitor_t m_apm;
 
 static nrf_ble_gatt_t m_gatt;                                                        /**< Structure for gatt module*/
 
-static sensorsim_cfg_t m_air_monitor_sim_cfg;
-static sensorsim_state_t m_air_monitor_sim_state;
+//static sensorsim_cfg_t m_air_monitor_sim_cfg;
+//static sensorsim_state_t m_air_monitor_sim_state;
 
 APP_TIMER_DEF(m_air_monitor_timer_id);
 
@@ -266,13 +266,18 @@ static void pm_evt_handler(pm_evt_t const *p_evt) {
     }
 }
 
+static char * read_air_sensor() {
+    return "test test test, 2224, 28, 50, 13518, 28172, 29466, 00, 00, 55, 16";
+}
+
 
 /**@brief Function for performing battery measurement and updating the Battery Level characteristic
  *        in Battery Service.
  */
 static void _air_monitor_update(void) {
-    uint8_t battery_level = (uint8_t) sensorsim_measure(&m_air_monitor_sim_state, &m_air_monitor_sim_cfg);
-    uint32_t err_code = air_monitor_update(&m_apm, battery_level);
+//    uint8_t battery_level = (uint8_t) sensorsim_measure(&m_air_monitor_sim_state, &m_air_monitor_sim_cfg);
+    char *air_level = read_air_sensor();
+    uint32_t err_code = air_monitor_update(&m_apm, air_level);
 
     if ((err_code != NRF_SUCCESS) &&
         (err_code != NRF_ERROR_INVALID_STATE) &&
@@ -358,11 +363,11 @@ static void services_init(void) {
     memset(&apm_init, 0, sizeof(apm_init));
 
     // Here the sec level for the Battery Service can be changed/increased.
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&apm_init.battery_level_char_attr_md.cccd_write_perm);
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&apm_init.battery_level_char_attr_md.read_perm);
-    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&apm_init.battery_level_char_attr_md.write_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&apm_init.air_level_char_attr_md.cccd_write_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&apm_init.air_level_char_attr_md.read_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&apm_init.air_level_char_attr_md.write_perm);
 
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&apm_init.battery_level_report_read_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&apm_init.air_level_report_read_perm);
 
     apm_init.evt_handler = NULL;
     apm_init.support_notification = true;

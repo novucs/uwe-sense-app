@@ -52,7 +52,7 @@
  *          the HID service).
  *
  *          If specified, the module will support notification of the Battery Level characteristic
- *          through the air_monitor_battery_level_update() function.
+ *          through the air_monitor_air_level_update() function.
  *          If an event handler is supplied by the application, the Battery Service will
  *          generate Battery Service events to the application.
  *
@@ -102,18 +102,17 @@ typedef struct {
     bool support_notification;           /**< TRUE if notification of Battery Level measurement is supported. */
     ble_srv_report_ref_t *p_report_ref;                   /**< If not NULL, a Report Reference descriptor with the specified value will be added to the Battery Level characteristic */
     char initial_batt_level[128];             /**< Initial battery level */
-
-    ble_srv_cccd_security_mode_t battery_level_char_attr_md;     /**< Initial security level for battery characteristics attribute */
-    ble_gap_conn_sec_mode_t battery_level_report_read_perm; /**< Initial security level for battery report read attribute */
+    ble_srv_cccd_security_mode_t air_level_char_attr_md;     /**< Initial security level for battery characteristics attribute */
+    ble_gap_conn_sec_mode_t air_level_report_read_perm; /**< Initial security level for battery report read attribute */
 } air_monitor_init_t;
 
 /**@brief Battery Service structure. This contains various status information for the service. */
 struct air_monitor_s {
     air_monitor_evt_handler_t evt_handler;                    /**< Event handler to be called for handling events in the Battery Service. */
     uint16_t service_handle;                 /**< Handle of Battery Service (as provided by the BLE stack). */
-    ble_gatts_char_handles_t battery_level_handles;          /**< Handles related to the Battery Level characteristic. */
+    ble_gatts_char_handles_t air_level_handles;          /**< Handles related to the Battery Level characteristic. */
     uint16_t report_ref_handle;              /**< Handle of the Report Reference descriptor. */
-    uint8_t battery_level_last;             /**< Last Battery Level measurement passed to the Battery Service. */
+    char *air_level_last;             /**< Last Battery Level measurement passed to the Battery Service. */
     uint16_t conn_handle;                    /**< Handle of the current connection (as provided by the BLE stack, is BLE_CONN_HANDLE_INVALID if not in a connection). */
     bool is_notification_supported;      /**< TRUE if notification of Battery Level is supported. */
 };
@@ -134,7 +133,7 @@ uint32_t air_monitor_init(air_monitor_t *p_bas, const air_monitor_init_t *p_bas_
  * @details Handles all events from the BLE stack of interest to the Battery Service.
  *
  * @note For the requirements in the BAS specification to be fulfilled,
- *       air_monitor_battery_level_update() must be called upon reconnection if the
+ *       air_monitor_air_level_update() must be called upon reconnection if the
  *       battery level has changed while the service has been disconnected from a bonded
  *       client.
  *
@@ -153,11 +152,11 @@ void air_monitor_on_ble_evt(air_monitor_t *p_bas, ble_evt_t *p_ble_evt);
  *       while the service has been disconnected from a bonded client.
  *
  * @param[in]   p_bas          Battery Service structure.
- * @param[in]   battery_level  New battery measurement value (in percent of full capacity).
+ * @param[in]   air_level  New battery measurement value (in percent of full capacity).
  *
  * @return      NRF_SUCCESS on success, otherwise an error code.
  */
-uint32_t air_monitor_update(air_monitor_t *p_bas, uint8_t battery_level);
+uint32_t air_monitor_update(air_monitor_t *p_bas, char *air_level);
 
 
 #ifdef __cplusplus

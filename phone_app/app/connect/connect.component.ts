@@ -76,6 +76,7 @@ export class MainComponent implements OnInit {
             const service = MainComponent.getAirMonitorService(peripheral);
 
             if (service == null) {
+                bluetooth.disconnect({UUID: peripheral.UUID});
                 return;
             }
 
@@ -114,8 +115,10 @@ export class MainComponent implements OnInit {
                     };
 
                     this.api.submitSensorEntryPPB(entry);
+                    bluetooth.disconnect({UUID: peripheral.UUID});
                 }, err => {
                     console.log("read error: " + err);
+                    bluetooth.disconnect({UUID: peripheral.UUID});
                 });
             }, this._scanDurationSeconds * 1000);
         });
