@@ -28,8 +28,8 @@ export interface SensorData {
 export class MainComponent implements OnInit {
 
     private _scanDurationSeconds = 4;
-    private _discoveredPeripherals = [];
-    private _knownPeripherals = [];
+    private _discoveredPeripherals = new Set();
+    private _knownPeripherals = new Set();
     private _knownPeripheralsFile;
 
     constructor(private api: ApiService) {
@@ -46,14 +46,14 @@ export class MainComponent implements OnInit {
             this._discoveredPeripherals = this._knownPeripherals;
         });
 
-        this._discoveredPeripherals.push({
+        this._discoveredPeripherals.add({
           UUID: '65445',
           name: 'Hello',
           RSSI: 1,
           services: []
         });
 
-        this._discoveredPeripherals.push({
+        this._discoveredPeripherals.add({
           UUID: '65445',
           name: 'loskoa',
           RSSI: 1,
@@ -76,15 +76,19 @@ export class MainComponent implements OnInit {
             serviceUUIDs: [AIR_MONITOR_SERVICE_ID],
             seconds: this._scanDurationSeconds,
             onDiscovered: peripheral => {
-                this._discoveredPeripherals.push(peripheral);
-                this.connect(peripheral);
+                if (this._knownPeripherals.has(peripheral)) {
+                    return;
+                }
+
+                this._discoveredPeripherals.add(peripheral);
             }
         });
     }
 
     connect(peripheral: bluetooth.Peripheral): void {
         console.log("PERIPHERAL DISCOVERED, CONNECTING: " + peripheral.UUID);
-        this._knownPeripherals.push(peripheral);
+        this._discoveredPeripherals.delete(peripheral);
+        this._knownPeripherals.add(peripheral);
 
         bluetooth.connect({
             UUID: peripheral.UUID,
