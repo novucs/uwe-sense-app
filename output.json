@@ -1,6 +1,6 @@
 {
-  "UUID": "D5:39:11:E2:E3:12",
-  "name": "Air_Pollutio",
+  "UUID": "F0:26:AD:98:23:84",
+  "name": "UWE_Sense",
   "state": "connected",
   "services": [
     {
@@ -50,6 +50,21 @@
             "extendedProperties": false
           },
           "descriptors": []
+        },
+        {
+          "UUID": "2aa6",
+          "name": "2aa6",
+          "properties": {
+            "read": true,
+            "write": false,
+            "writeWithoutResponse": false,
+            "notify": false,
+            "indicate": false,
+            "broadcast": false,
+            "authenticatedSignedWrites": false,
+            "extendedProperties": false
+          },
+          "descriptors": []
         }
       ]
     },
@@ -58,7 +73,32 @@
       "characteristics": []
     },
     {
-      "UUID": "1337",
+      "UUID": "a80b",
+      "characteristics": [
+        {
+          "UUID": "b4fbc6ce-380f-4ec1-be0a-d163efcf02c4",
+          "name": "b4fbc6ce-380f-4ec1-be0a-d163efcf02c4",
+          "properties": {
+            "read": true,
+            "write": false,
+            "writeWithoutResponse": false,
+            "notify": true,
+            "indicate": false,
+            "broadcast": false,
+            "authenticatedSignedWrites": false,
+            "extendedProperties": false
+          },
+          "descriptors": [
+            {
+              "UUID": "2902",
+              "value": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "UUID": "180f",
       "characteristics": [
         {
           "UUID": "2a19",
@@ -79,6 +119,26 @@
               "value": null
             }
           ]
+        }
+      ]
+    },
+    {
+      "UUID": "180a",
+      "characteristics": [
+        {
+          "UUID": "2a29",
+          "name": "2a29",
+          "properties": {
+            "read": true,
+            "write": false,
+            "writeWithoutResponse": false,
+            "notify": false,
+            "indicate": false,
+            "broadcast": false,
+            "authenticatedSignedWrites": false,
+            "extendedProperties": false
+          },
+          "descriptors": []
         }
       ]
     }

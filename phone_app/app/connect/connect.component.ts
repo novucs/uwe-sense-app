@@ -5,7 +5,9 @@ import {ApiService, SensorEntryPPB} from "../app.service";
 
 declare const android: any;
 
-const AIR_MONITOR_SERVICE_ID = "1337";
+// const AIR_MONITOR_SERVICE_ID = "1337";
+
+const AIR_MONITOR_SERVICE_ID = "a80b";
 
 export interface SensorData {
     serialId: string,
@@ -44,7 +46,7 @@ export class MainComponent implements OnInit {
             bluetooth.requestCoarseLocationPermission();
         }
 
-        setInterval(() => {
+        // setInterval(() => {
             console.log("STARTING SCANNING");
             bluetooth.startScanning({
                 serviceUUIDs: [AIR_MONITOR_SERVICE_ID],
@@ -53,7 +55,7 @@ export class MainComponent implements OnInit {
                     this.peripheralFound(peripheral);
                 }
             });
-        }, 10000);
+        // }, 10000);
     }
 
     peripheralFound(peripheral: bluetooth.Peripheral): void {
@@ -84,12 +86,48 @@ export class MainComponent implements OnInit {
 
             console.log("READING FROM PERIPHERAL " + peripheral.UUID + " AT SERVICE " + service.UUID + " USING CHARACTERISTIC " + characteristic.UUID);
 
-            setTimeout(() => {
-                bluetooth.read({
-                    peripheralUUID: peripheral.UUID,
-                    serviceUUID: service.UUID,
-                    characteristicUUID: characteristic.UUID
-                }).then(result => {
+            // setInterval(() => {
+            //     bluetooth.read({
+            //         peripheralUUID: peripheral.UUID,
+            //         serviceUUID: service.UUID,
+            //         characteristicUUID: characteristic.UUID
+            //     }).then(result => {
+            //         const output = new TextDecoder("UTF-8").decode(result.value).split(", ");
+            //
+            //         const data: SensorData = {
+            //             serialId: output[0],
+            //             particlesPerBillion: +output[1],
+            //             temperature: +output[2],
+            //             relativeHumidity: +output[3],
+            //             rawSensor: +output[4],
+            //             digitalTemperature: +output[5],
+            //             digitalRelativeHumidity: +output[6],
+            //             day: +output[7],
+            //             hour: +output[8],
+            //             minute: +output[9],
+            //             second: +output[10]
+            //         };
+            //
+            //         console.log(JSON.stringify(data));
+            //
+            //         const entry: SensorEntryPPB = {
+            //             uuid: peripheral.uuid,
+            //             timestamp: new Date(),
+            //             data: data.particlesPerBillion
+            //         };
+            //
+            //         this.api.submitSensorEntryPPB(entry);
+            //         // bluetooth.disconnect({UUID: peripheral.UUID});
+            //     }, err => {
+            //         console.log("read error: " + err);
+            //         // bluetooth.disconnect({UUID: peripheral.UUID});
+            //     });
+            // }, this._scanDurationSeconds * 1000);
+            bluetooth.startNotifying({
+                peripheralUUID: peripheral.UUID,
+                serviceUUID: service.UUID,
+                characteristicUUID: characteristic.UUID,
+                onNotify: result => {
                     const output = new TextDecoder("UTF-8").decode(result.value).split(", ");
 
                     const data: SensorData = {
@@ -115,13 +153,13 @@ export class MainComponent implements OnInit {
                     };
 
                     this.api.submitSensorEntryPPB(entry);
-                    bluetooth.disconnect({UUID: peripheral.UUID});
-                }, err => {
-                    console.log("read error: " + err);
-                    bluetooth.disconnect({UUID: peripheral.UUID});
-                });
-            }, this._scanDurationSeconds * 1000);
-        });
+                    // bluetooth.disconnect({UUID: peripheral.UUID});
+                }
+            }).then(() => {
+                console.log("Notifications subscribed");
+            });
+        })
+        // });
     }
 
     static getAirMonitorService(peripheral) {
