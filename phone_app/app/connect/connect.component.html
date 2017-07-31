@@ -1,8 +1,13 @@
-<StackLayout class="page">
-    <p>Hello Friend</p>
-    <!--<ListView [items]="items" class="list-group">-->
-        <!--<ng-template let-item="item">-->
-            <!--<Label [nsRouterLink]="['/item', item.id]" [text]="item.name class="list-group-item"></Label>-->
-        <!--</ng-template>-->
-    <!--</ListView>-->
-</StackLayout>
+
+    <StackLayout  class="page" orientation="vertical">
+       <Image  src="res://logo" stretch="none" horizontalAlignment="center" ></Image>
+       <Label text=" Tap 'scan' to see the list of scanned devices  "></Label>
+        <Button text="Scan" (tap)="scan($event)" ng-init="count=0" ></Button>
+        <Label text=""></Label>
+        <Label text=""></Label>
+        <ListView [items]="_discoveredPeripherals" (itemTap)="onItemTap($event)"   class="list-group">
+          <ng-template let-item="item">
+            <Label  [text]="item.name" class="list-group-item"></Label>
+          </ng-template>
+        </ListView>
+    </StackLayout>

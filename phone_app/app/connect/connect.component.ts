@@ -46,6 +46,20 @@ export class MainComponent implements OnInit {
             this._discoveredPeripherals = this._knownPeripherals;
         });
 
+        this._discoveredPeripherals.push({
+          UUID: '65445',
+          name: 'Hello',
+          RSSI: 1,
+          services: []
+        });
+
+        this._discoveredPeripherals.push({
+          UUID: '65445',
+          name: 'loskoa',
+          RSSI: 1,
+          services: []
+        });
+
         bluetooth.hasCoarseLocationPermission().then(granted => {
             if (!granted) {
                 bluetooth.requestCoarseLocationPermission();
@@ -120,7 +134,7 @@ export class MainComponent implements OnInit {
                 console.log(JSON.stringify(data));
 
                 const entry: SensorEntryPPB = {
-                    uuid: peripheral.uuid,
+                    uuid: peripheral.UUID,
                     timestamp: new Date(),
                     data: data.particlesPerBillion
                 };

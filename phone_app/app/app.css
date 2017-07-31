@@ -9,4 +9,38 @@ In many cases you may want to use the NativeScript core theme instead
 of writing your own CSS rules. For a full list of class names in the theme
 refer to http://docs.nativescript.org/ui/theme.
 */
-@import 'nativescript-theme-core/css/core.light.css';
+@import 'nativescript-theme-core/css/sky.css';
+
+StackLayout {
+    background-color: white;
+    font-size: 17;
+}
+
+TextField {
+    margin: 10;
+    padding: 10;
+}
+
+Image {
+    margin-top: 20;
+    margin-left: 0;
+    margin-right: 0;
+    margin-bottom: 80;
+}
+
+Button {
+    margin: 10;
+    padding: 10;
+}
+
+.link {
+    background-color: transparent;
+    border-color: black;
+    border-width: 2px;
+}
+
+Label {
+    text-align: center;
+    color: green;
+}
+  
