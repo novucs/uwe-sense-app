@@ -31,40 +31,41 @@ export interface SensorData {
 export class MainComponent implements OnInit {
 
     private _scanDurationSeconds = 4;
+    private _discoveredPeripherals = [];
 
     constructor(private api: ApiService) {
     }
 
     ngOnInit(): void {
         bluetooth.hasCoarseLocationPermission().then(granted => {
-            this.beginScanning(granted);
+            if (!granted) {
+                bluetooth.requestCoarseLocationPermission();
+            }
+
+            this.scan();
         });
     }
 
-    beginScanning(grantedPermission): void {
-        if (!grantedPermission) {
-            bluetooth.requestCoarseLocationPermission();
-        }
+    scan(): void {
+        console.log("STARTING SCANNING");
 
-        // setInterval(() => {
-            console.log("STARTING SCANNING");
-            bluetooth.startScanning({
-                serviceUUIDs: [AIR_MONITOR_SERVICE_ID],
-                seconds: this._scanDurationSeconds,
-                onDiscovered: peripheral => {
-                    this.peripheralFound(peripheral);
-                }
-            });
-        // }, 10000);
+        bluetooth.startScanning({
+            serviceUUIDs: [AIR_MONITOR_SERVICE_ID],
+            seconds: this._scanDurationSeconds,
+            onDiscovered: peripheral => {
+                this._discoveredPeripherals.push(peripheral);
+                this.connect(peripheral);
+            }
+        });
     }
 
-    peripheralFound(peripheral: bluetooth.Peripheral): void {
+    connect(peripheral: bluetooth.Peripheral): void {
         console.log("PERIPHERAL DISCOVERED, CONNECTING: " + peripheral.UUID);
 
         bluetooth.connect({
             UUID: peripheral.UUID,
             onConnected: peripheral => {
-                this.peripheralConnected(peripheral);
+                this.connectCallback(peripheral);
             },
             onDisconnected: data => {
                 console.log("Disconnected from " + peripheral.UUID + ", data: " + JSON.stringify(data));
@@ -72,93 +73,54 @@ export class MainComponent implements OnInit {
         });
     }
 
-    peripheralConnected(peripheral): void {
-        bluetooth.stopScanning().then(() => {
-            console.log("CONNECTED TO " + JSON.stringify(peripheral));
-            const service = MainComponent.getAirMonitorService(peripheral);
+    connectCallback(peripheral: bluetooth.Peripheral): void {
+        console.log("CONNECTED TO " + JSON.stringify(peripheral));
+        const service = MainComponent.getAirMonitorService(peripheral);
 
-            if (service == null) {
-                bluetooth.disconnect({UUID: peripheral.UUID});
-                return;
+        if (service == null) {
+            bluetooth.disconnect({UUID: peripheral.UUID});
+            return;
+        }
+
+        const characteristic = service.characteristics[0];
+
+        console.log("READING FROM PERIPHERAL " + peripheral.UUID + " AT SERVICE " + service.UUID + " USING CHARACTERISTIC " + characteristic.UUID);
+
+        bluetooth.startNotifying({
+            peripheralUUID: peripheral.UUID,
+            serviceUUID: service.UUID,
+            characteristicUUID: characteristic.UUID,
+            onNotify: result => {
+                const output = new TextDecoder("UTF-8").decode(result.value).split(", ");
+
+                const data: SensorData = {
+                    serialId: output[0],
+                    particlesPerBillion: +output[1],
+                    temperature: +output[2],
+                    relativeHumidity: +output[3],
+                    rawSensor: +output[4],
+                    digitalTemperature: +output[5],
+                    digitalRelativeHumidity: +output[6],
+                    day: +output[7],
+                    hour: +output[8],
+                    minute: +output[9],
+                    second: +output[10]
+                };
+
+                console.log(JSON.stringify(data));
+
+                const entry: SensorEntryPPB = {
+                    uuid: peripheral.uuid,
+                    timestamp: new Date(),
+                    data: data.particlesPerBillion
+                };
+
+                this.api.submitSensorEntryPPB(entry);
+                // bluetooth.disconnect({UUID: peripheral.UUID});
             }
-
-            const characteristic = service.characteristics[0];
-
-            console.log("READING FROM PERIPHERAL " + peripheral.UUID + " AT SERVICE " + service.UUID + " USING CHARACTERISTIC " + characteristic.UUID);
-
-            // setInterval(() => {
-            //     bluetooth.read({
-            //         peripheralUUID: peripheral.UUID,
-            //         serviceUUID: service.UUID,
-            //         characteristicUUID: characteristic.UUID
-            //     }).then(result => {
-            //         const output = new TextDecoder("UTF-8").decode(result.value).split(", ");
-            //
-            //         const data: SensorData = {
-            //             serialId: output[0],
-            //             particlesPerBillion: +output[1],
-            //             temperature: +output[2],
-            //             relativeHumidity: +output[3],
-            //             rawSensor: +output[4],
-            //             digitalTemperature: +output[5],
-            //             digitalRelativeHumidity: +output[6],
-            //             day: +output[7],
-            //             hour: +output[8],
-            //             minute: +output[9],
-            //             second: +output[10]
-            //         };
-            //
-            //         console.log(JSON.stringify(data));
-            //
-            //         const entry: SensorEntryPPB = {
-            //             uuid: peripheral.uuid,
-            //             timestamp: new Date(),
-            //             data: data.particlesPerBillion
-            //         };
-            //
-            //         this.api.submitSensorEntryPPB(entry);
-            //         // bluetooth.disconnect({UUID: peripheral.UUID});
-            //     }, err => {
-            //         console.log("read error: " + err);
-            //         // bluetooth.disconnect({UUID: peripheral.UUID});
-            //     });
-            // }, this._scanDurationSeconds * 1000);
-            bluetooth.startNotifying({
-                peripheralUUID: peripheral.UUID,
-                serviceUUID: service.UUID,
-                characteristicUUID: characteristic.UUID,
-                onNotify: result => {
-                    const output = new TextDecoder("UTF-8").decode(result.value).split(", ");
-
-                    const data: SensorData = {
-                        serialId: output[0],
-                        particlesPerBillion: +output[1],
-                        temperature: +output[2],
-                        relativeHumidity: +output[3],
-                        rawSensor: +output[4],
-                        digitalTemperature: +output[5],
-                        digitalRelativeHumidity: +output[6],
-                        day: +output[7],
-                        hour: +output[8],
-                        minute: +output[9],
-                        second: +output[10]
-                    };
-
-                    console.log(JSON.stringify(data));
-
-                    const entry: SensorEntryPPB = {
-                        uuid: peripheral.uuid,
-                        timestamp: new Date(),
-                        data: data.particlesPerBillion
-                    };
-
-                    this.api.submitSensorEntryPPB(entry);
-                    // bluetooth.disconnect({UUID: peripheral.UUID});
-                }
-            }).then(() => {
-                console.log("Notifications subscribed");
-            });
-        })
+        }).then(() => {
+            console.log("Notifications subscribed");
+        });
         // });
     }
 
