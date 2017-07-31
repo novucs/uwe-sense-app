@@ -2,10 +2,7 @@ import {Component, OnInit} from "@angular/core";
 import * as bluetooth from "nativescript-bluetooth";
 import {TextDecoder} from "text-encoding";
 import {ApiService, SensorEntryPPB} from "../app.service";
-
-declare const android: any;
-
-// const AIR_MONITOR_SERVICE_ID = "1337";
+import * as fileSystem from "file-system";
 
 const AIR_MONITOR_SERVICE_ID = "a80b";
 
@@ -32,11 +29,23 @@ export class MainComponent implements OnInit {
 
     private _scanDurationSeconds = 4;
     private _discoveredPeripherals = [];
+    private _knownPeripherals = [];
+    private _knownPeripheralsFile;
 
     constructor(private api: ApiService) {
     }
 
     ngOnInit(): void {
+        this._knownPeripheralsFile = fileSystem.knownFolders.currentApp().getFile("known-peripherals.json");
+        this._knownPeripheralsFile.readText().then(content => {
+            if (!content) {
+                return;
+            }
+
+            this._knownPeripherals = JSON.parse(content);
+            this._discoveredPeripherals = this._knownPeripherals;
+        });
+
         bluetooth.hasCoarseLocationPermission().then(granted => {
             if (!granted) {
                 bluetooth.requestCoarseLocationPermission();
@@ -61,6 +70,7 @@ export class MainComponent implements OnInit {
 
     connect(peripheral: bluetooth.Peripheral): void {
         console.log("PERIPHERAL DISCOVERED, CONNECTING: " + peripheral.UUID);
+        this._knownPeripherals.push(peripheral);
 
         bluetooth.connect({
             UUID: peripheral.UUID,
@@ -116,12 +126,10 @@ export class MainComponent implements OnInit {
                 };
 
                 this.api.submitSensorEntryPPB(entry);
-                // bluetooth.disconnect({UUID: peripheral.UUID});
             }
         }).then(() => {
             console.log("Notifications subscribed");
         });
-        // });
     }
 
     static getAirMonitorService(peripheral) {
