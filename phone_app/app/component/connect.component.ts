@@ -3,7 +3,6 @@ import * as bluetooth from "nativescript-bluetooth";
 import {TextDecoder} from "text-encoding";
 import {ApiService, SensorEntryPPB} from "../app.service";
 import * as fileSystem from "file-system";
-import * as dialogs from "ui/dialogs";
 
 const AIR_MONITOR_SERVICE_ID = "a80b";
 
@@ -34,7 +33,7 @@ export class ConnectComponent implements OnInit {
     private _knownPeripheralsFile;
 
     constructor(private api: ApiService) {
-        for (var i = 0; i < 7; i++) {
+        for (let i = 0; i < 7; i++) {
             if (Math.random() < .5) {
                 this._knownPeripherals.add({
                     UUID: '65445',
@@ -55,30 +54,7 @@ export class ConnectComponent implements OnInit {
         }
     }
 
-    popup() {
-        dialogs.action({
-            message: "How often do you want to receive data?",
-            cancelButtonText: "Cancel text",
-            actions: ["1 Minute", "3 Minutes", "5 Minutes", "10 Minutes", "30 Minutes"]
-        }).then(result => {
-            console.log("Dialog result: " + result);
-            if (result == "1 Minute") {
-                const intval = 1;
-                alert('Oiseh n?  ' + intval);
-            } else if (result == "3 Minutes") {
-                //Do action2
-            } else if (result == "5 Minutes") {
-                //Do action2
-            } else if (result == "10 Minutes") {
-                //Do action2
-            } else if (result == "30 Minutes") {
-                //Do action2
-            }
-        });
-    }
-
     ngOnInit(): void {
-
         this._knownPeripheralsFile = fileSystem.knownFolders.currentApp().getFile("known-peripherals.json");
         this._knownPeripheralsFile.readText().then(content => {
             if (!content) {

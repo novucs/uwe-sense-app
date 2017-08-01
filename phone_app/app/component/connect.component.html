@@ -1,15 +1,14 @@
 <ScrollView>
     <StackLayout class="page" orientation="vertical">
-        <Image src="res://uwelogo" stretch="none" horizontalAlignment="center"></Image>
+        <Image src="res://logo" stretch="none" horizontalAlignment="center"></Image>
         <Label text="Air Pollution Monitor" class="title"></Label>
         <Button text="Scan" (tap)="scan($event)" ng-init="count=0"></Button>
 
-        <br />
         <Label text="Connected Devices" class="subtitle"></Label>
-        <Button class='list' *ngFor="let peripheral of _knownPeripherals" (tap)='popup()'
+        <Button class='list' *ngFor="let peripheral of _knownPeripherals"
+                [nsRouterLink]="['/peripheral', peripheral]"
                 [text]="''+peripheral.name+' \t\t \uD83D\uDD0B'+peripheral.battery+'%'"></Button>
 
-        <br />
         <Label text="Disconnected Devices" class="subtitle"></Label>
         <Button class='list' *ngFor="let peripheral of _discoveredPeripherals"
                 [text]="''+peripheral.name+' \t\t \uD83D\uDD0B'+peripheral.battery+'%'"></Button>
