@@ -26,7 +26,7 @@ export interface SensorData {
     moduleId: module.id,
     templateUrl: "./connect.component.html",
 })
-export class MainComponent implements OnInit {
+export class ConnectComponent implements OnInit {
 
     private _scanDurationSeconds = 4;
     private _discoveredPeripherals = new Set();
@@ -133,7 +133,7 @@ export class MainComponent implements OnInit {
 
     connectCallback(peripheral: bluetooth.Peripheral): void {
         console.log("CONNECTED TO " + JSON.stringify(peripheral));
-        const service = MainComponent.getAirMonitorService(peripheral);
+        const service = ConnectComponent.getAirMonitorService(peripheral);
 
         if (service == null) {
             bluetooth.disconnect({UUID: peripheral.UUID});

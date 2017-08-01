@@ -3,7 +3,7 @@ import {NativeScriptModule} from "nativescript-angular/nativescript.module";
 import {AppRoutingModule} from "./app.routing";
 import {AppComponent} from "./app.component";
 
-import {MainComponent} from "./connect/connect.component";
+import {ConnectComponent} from "./component/connect.component";
 import {ApiService} from "./app.service";
 
 @NgModule({
@@ -16,7 +16,7 @@ import {ApiService} from "./app.service";
     ],
     declarations: [
         AppComponent,
-        MainComponent
+        ConnectComponent
     ],
     providers: [
         ApiService
