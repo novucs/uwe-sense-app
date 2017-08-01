@@ -6,6 +6,7 @@ import {AppComponent} from "./app.component";
 import {ConnectComponent} from "./component/connect.component";
 import {ApiService} from "./app.service";
 import {PeripheralComponent} from "./component/peripheral.component";
+import {LoginComponent} from "./component/login.component";
 
 @NgModule({
     bootstrap: [
@@ -18,7 +19,8 @@ import {PeripheralComponent} from "./component/peripheral.component";
     declarations: [
         AppComponent,
         ConnectComponent,
-        PeripheralComponent
+        PeripheralComponent,
+        LoginComponent
     ],
     providers: [
         ApiService
