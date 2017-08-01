@@ -1,20 +1,17 @@
-<StackLayout class="page" orientation="vertical">
-    <Image src="res://logo" stretch="none" horizontalAlignment="center"></Image>
-    <Label text=" Tap 'scan' to see the list of scanned devices  "></Label>
-    <Button text="Scan" (tap)="scan($event)" ng-init="count=0"></Button>
-    <Label text=""></Label>
+<ScrollView>
+    <StackLayout class="page" orientation="vertical">
+        <Image src="res://uwelogo" stretch="none" horizontalAlignment="center"></Image>
+        <Label text="Air Pollution Monitor" class="title"></Label>
+        <Button text="Scan" (tap)="scan($event)" ng-init="count=0"></Button>
 
-    <Label text="Connected Devices"></Label>
-    <ListView [items]="_knownPeripherals" (itemTap)="connect($event)" class="list-group">
-        <ng-template let-item="item">
-            <Label [text]="item.name" class="list-group-item"></Label>
-        </ng-template>
-    </ListView>
+        <br />
+        <Label text="Connected Devices" class="subtitle"></Label>
+        <Button class='list' *ngFor="let peripheral of _knownPeripherals" (tap)='popup()'
+                [text]="''+peripheral.name+' \t\t \uD83D\uDD0B'+peripheral.battery+'%'"></Button>
 
-    <Label text="Disconnected Devices"></Label>
-    <ListView [items]="_discoveredPeripherals" (itemTap)="connect($event)" class="list-group">
-        <ng-template let-item="item">
-            <Label [text]="item.name" class="list-group-item"></Label>
-        </ng-template>
-    </ListView>
-</StackLayout>
+        <br />
+        <Label text="Disconnected Devices" class="subtitle"></Label>
+        <Button class='list' *ngFor="let peripheral of _discoveredPeripherals"
+                [text]="''+peripheral.name+' \t\t \uD83D\uDD0B'+peripheral.battery+'%'"></Button>
+    </StackLayout>
+</ScrollView>

@@ -13,34 +13,48 @@ refer to http://docs.nativescript.org/ui/theme.
 
 StackLayout {
     background-color: white;
-    font-size: 17;
+    font-size: 16px;
 }
 
 TextField {
-    margin: 10;
-    padding: 10;
+    margin: 10px;
+    padding: 10px;
 }
 
 Image {
-    margin-top: 20;
-    margin-left: 0;
-    margin-right: 0;
-    margin-bottom: 80;
+    margin: 20px 0 80px;
 }
 
 Button {
-    margin: 10;
-    padding: 10;
+    border-radius: 2px;
+    background-color: skyblue;
+    color: white;
+    max-width: 720px;
+    width: 80%;
+    margin: 10px;
+    padding: 10px;
+
 }
 
 .link {
     background-color: transparent;
-    border-color: black;
-    border-width: 2px;
+    border: 2px black;
 }
 
 Label {
     text-align: center;
-    color: green;
 }
-  
+
+Label.title {
+    font-size: 32px;
+}
+
+Label.subtitle {
+    font-size: 24px;
+}
+
+Button.list {
+    color: black;
+    background-color: lightgray;
+    border: 1px black;
+}
