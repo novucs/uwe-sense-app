@@ -7,9 +7,12 @@ import {ActivatedRoute} from "@angular/router";
     selector: "ns-items",
     moduleId: module.id,
     templateUrl: "./peripheral.component.html",
+    // template: '<numberpicker:NumberPicker value="3" minValue="2" maxValue="6" id="np"></numberpicker:NumberPicker>'
 })
 export class PeripheralComponent implements OnInit {
 
+    private _zeroToSixty = Array(60).fill(1, 61).map((x,i)=>i);
+    private _zeroToTwentyFour = Array(24).fill(1, 25).map((x,i)=>i);
     private _peripheral = {name: ""};
 
     constructor(private route: ActivatedRoute,
@@ -18,5 +21,9 @@ export class PeripheralComponent implements OnInit {
     }
 
     ngOnInit(): void {
+    }
+
+    submit(): void {
+        console.log("Submit button pressed");
     }
 }

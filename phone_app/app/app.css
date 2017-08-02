@@ -58,3 +58,9 @@ Button.list {
     background-color: lightgray;
     border: 1px black;
 }
+
+ListPicker {
+    width: 30%;
+    max-width: 300px;
+    min-width: 100px;
+}

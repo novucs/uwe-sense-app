@@ -2,5 +2,6 @@
     <StackLayout class="page" orientation="vertical">
         <Image src="res://uwelogo" stretch="none" horizontalAlignment="center"></Image>
         <Label text="Google Login" class="title"></Label>
+        <Button [text]="Submit" (tap)="submit($event)" [nsRouterLink]="['/connect']"></Button>
     </StackLayout>
 </ScrollView>

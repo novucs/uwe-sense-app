@@ -2,5 +2,12 @@
     <StackLayout class="page" orientation="vertical">
         <Image src="res://uwelogo" stretch="none" horizontalAlignment="center"></Image>
         <Label text="Configure {{ _peripheral.name }}" class="title"></Label>
+        <Label text="Resample rate (hh:mm:ss)" class="subtitle"></Label>
+        <StackLayout class="page" orientation="horizontal" horizontalAlignment="center">
+            <ListPicker class="timepicker" [items]="_zeroToTwentyFour" [selectedIndex]="index"></ListPicker>
+            <ListPicker class="timepicker" [items]="_zeroToSixty" [selectedIndex]="index"></ListPicker>
+            <ListPicker class="timepicker" [items]="_zeroToSixty" [selectedIndex]="index"></ListPicker>
+        </StackLayout>
+        <Button [text]="Submit" (tap)="submit($event)"></Button>
     </StackLayout>
 </ScrollView>
