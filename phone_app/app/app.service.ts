@@ -10,7 +10,7 @@ export class ApiService {
 
     submitSensorEntryPPB(entry: SensorEntryPPB) {
         http.request({
-            url: "http://localhost/api/sensor",
+            url: "http://ec2-35-166-177-195.us-west-2.compute.amazonaws.com:8080/rt/http-data-publishing?apikey=b941bee8-afcf-479d-8f99-8862c4661b65",
             method: "POST",
             headers: {"Content-Type": "application/json"},
             content: entry
