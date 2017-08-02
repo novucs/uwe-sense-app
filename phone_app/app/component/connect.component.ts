@@ -75,7 +75,6 @@ export class ConnectComponent implements OnInit {
     }
 
     scan(): void {
-
         console.log("STARTING SCANNING");
 
         bluetooth.startScanning({
