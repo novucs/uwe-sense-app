@@ -124,28 +124,14 @@ export class ConnectComponent implements OnInit {
             serviceUUID: service.UUID,
             characteristicUUID: characteristic.UUID,
             onNotify: result => {
-                const output = new TextDecoder("UTF-8").decode(result.value).split(", ");
-
-                const data: SensorData = {
-                    serialId: output[0],
-                    particlesPerBillion: +output[1],
-                    temperature: +output[2],
-                    relativeHumidity: +output[3],
-                    rawSensor: +output[4],
-                    digitalTemperature: +output[5],
-                    digitalRelativeHumidity: +output[6],
-                    day: +output[7],
-                    hour: +output[8],
-                    minute: +output[9],
-                    second: +output[10]
-                };
-
-                console.log(JSON.stringify(data));
+                const data = new Uint8Array(result.value);
+                const particlesPerBillion = data[1];
+                console.log(particlesPerBillion);
 
                 const entry: SensorEntryPPB = {
                     uuid: peripheral.UUID,
                     timestamp: new Date(),
-                    data: data.particlesPerBillion
+                    data: particlesPerBillion
                 };
 
                 this.api.submitSensorEntryPPB(entry);
