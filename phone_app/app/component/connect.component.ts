@@ -56,14 +56,18 @@ export class ConnectComponent implements OnInit {
 
     ngOnInit(): void {
         this._knownPeripheralsFile = fileSystem.knownFolders.currentApp().getFile("known-peripherals.json");
-        this._knownPeripheralsFile.readText().then(content => {
-            if (!content) {
-                return;
-            }
-
-            this._knownPeripherals = JSON.parse(content);
-            this._discoveredPeripherals = this._knownPeripherals;
-        });
+        // this._knownPeripheralsFile.writeText(JSON.stringify(this._discoveredPeripherals)).then(value => {
+        //     console.log("WRITE VALUE " + value);
+        //     this._knownPeripheralsFile.readText().then(content => {
+        //         if (!content) {
+        //             return;
+        //         }
+        //
+        //         console.log("FILE CONTENT: " + content);
+        //         this._knownPeripherals = new Set(JSON.parse(content));
+        //         // this._discoveredPeripherals = this._knownPeripherals;
+        //     });
+        // });
 
         bluetooth.hasCoarseLocationPermission().then(granted => {
             if (!granted) {
