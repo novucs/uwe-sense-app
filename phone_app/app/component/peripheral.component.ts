@@ -13,6 +13,7 @@ import {RouterExtensions} from "nativescript-angular";
 })
 export class PeripheralComponent implements OnInit {
 
+    private _updating: boolean = false;
     private _zeroToSixty = Array(60).fill(1, 61).map((x, i) => i);
     private _zeroToTwentyFour = Array(24).fill(1, 25).map((x, i) => i);
     private _peripheral = {name: ""};
@@ -27,7 +28,9 @@ export class PeripheralComponent implements OnInit {
     }
 
     update(): void {
+        this._updating = true;
         alert("Device settings updated");
+        this._updating = false;
     }
 
     unregister(): void {

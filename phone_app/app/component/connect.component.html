@@ -6,12 +6,10 @@
         <Button class="{{_loggingOut ? 'special' : 'none'}}"
                 text="{{_loggingOut ? 'Logging Out \u27f2' : 'Logout'}}"
                 (tap)="logout($event)"
-                ng-init="count=0"
                 isEnabled="{{!_loggingOut}}"></Button>
         <Button class="{{_scanning ? 'special' : 'none'}}"
                 text="{{_scanning ? 'Scanning \u27f2' : 'Scan'}}"
                 (tap)="scan($event)"
-                ng-init="count=0"
                 isEnabled="{{!_scanning}}"></Button>
 
         <Label text="Connected Devices" class="subtitle"></Label>
