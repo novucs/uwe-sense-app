@@ -53,10 +53,18 @@ Label.subtitle {
     font-size: 24px;
 }
 
+Button {
+    color: #deecef;
+    background-color: #009fe3;
+}
+
+Button.scanning {
+    background-color: #d4412f;
+}
+
 Button.list {
     color: black;
-    background-color: lightgray;
-    border: 1px black;
+    background-color: #deecef;
 }
 
 ListPicker {

@@ -5,21 +5,7 @@ import {ApiService, SensorEntryPPB} from "../app.service";
 import * as fileSystem from "file-system";
 import firebase = require("nativescript-plugin-firebase");
 
-const AIR_MONITOR_SERVICE_ID = "a80b";
-
-export interface SensorData {
-    serialId: string,
-    particlesPerBillion: number,
-    temperature: number,
-    relativeHumidity: number,
-    rawSensor: number,
-    digitalTemperature: number,
-    digitalRelativeHumidity: number,
-    day: number,
-    hour: number,
-    minute: number,
-    second: number
-}
+const SENSOR_SERVICE_ID = "a80b";
 
 @Component({
     selector: "ns-items",
@@ -29,6 +15,7 @@ export interface SensorData {
 export class ConnectComponent implements OnInit {
 
     private _scanDurationSeconds = 4;
+    private _scanning = false;
     private _discoveredPeripherals = new Set();
     private _knownPeripherals = new Set();
     private _knownPeripheralsFile;
@@ -57,18 +44,16 @@ export class ConnectComponent implements OnInit {
 
     ngOnInit(): void {
         this._knownPeripheralsFile = fileSystem.knownFolders.currentApp().getFile("known-peripherals.json");
-        // this._knownPeripheralsFile.writeText(JSON.stringify(this._discoveredPeripherals)).then(value => {
-        //     console.log("WRITE VALUE " + value);
-        //     this._knownPeripheralsFile.readText().then(content => {
-        //         if (!content) {
-        //             return;
-        //         }
-        //
-        //         console.log("FILE CONTENT: " + content);
-        //         this._knownPeripherals = new Set(JSON.parse(content));
-        //         // this._discoveredPeripherals = this._knownPeripherals;
-        //     });
-        // });
+        this._knownPeripheralsFile.readText().then(content => {
+            if (!content) {
+                return;
+            }
+
+            console.log("Connecting to previously discovered peripherals: " + content);
+            this._knownPeripherals = new Set(JSON.parse(content));
+            this._knownPeripherals.forEach(peripheral => this.connect(peripheral));
+        });
+
         firebase.init({}).then(() => {
                 console.log("Firebase init done!");
                 firebase.login({
@@ -101,8 +86,9 @@ export class ConnectComponent implements OnInit {
 
             console.log("STARTING SCANNING");
 
+            this._scanning = true;
             bluetooth.startScanning({
-                serviceUUIDs: [AIR_MONITOR_SERVICE_ID],
+                serviceUUIDs: [SENSOR_SERVICE_ID],
                 seconds: this._scanDurationSeconds,
                 onDiscovered: peripheral => {
                     if (this._knownPeripherals.has(peripheral)) {
@@ -111,12 +97,16 @@ export class ConnectComponent implements OnInit {
 
                     this._discoveredPeripherals.add(peripheral);
                 }
+            }).then(a => {
+                this._scanning = false;
+            }).catch(error => {
+                alert("Scanning error: " + error);
             });
         });
     }
 
     connect(peripheral: bluetooth.Peripheral): void {
-        console.log("PERIPHERAL DISCOVERED, CONNECTING: " + peripheral.UUID);
+        console.log("Connecting to peripheral with ID: " + peripheral.UUID);
         this._discoveredPeripherals.delete(peripheral);
         this._knownPeripherals.add(peripheral);
 
@@ -128,11 +118,21 @@ export class ConnectComponent implements OnInit {
             onDisconnected: data => {
                 console.log("Disconnected from " + peripheral.UUID + ", data: " + JSON.stringify(data));
             }
-        });
+        }).then(a => console.log("a: " + a), b => console.log("b: " + b)).catch(c => console.log("c: " + c));
     }
 
     connectCallback(peripheral: bluetooth.Peripheral): void {
         console.log("CONNECTED TO " + JSON.stringify(peripheral));
+
+        // Save peripherals.
+
+        const serializedPeripherals = JSON.stringify(Array.from(this._knownPeripherals));
+        console.log("WRITING: " + serializedPeripherals);
+        this._knownPeripheralsFile.writeText(serializedPeripherals).then(value => {
+            console.log("WRITE SUCCESS: " + value);
+        });
+
+
         const service = ConnectComponent.getAirMonitorService(peripheral);
 
         if (service == null) {
@@ -170,7 +170,7 @@ export class ConnectComponent implements OnInit {
         for (let i = 0; i < peripheral.services.length; i++) {
             const service = peripheral.services[i];
 
-            if (service.UUID == AIR_MONITOR_SERVICE_ID) {
+            if (service.UUID == SENSOR_SERVICE_ID) {
                 return service;
             }
         }

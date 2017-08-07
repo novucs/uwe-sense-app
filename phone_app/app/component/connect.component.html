@@ -2,7 +2,11 @@
     <StackLayout class="page" orientation="vertical">
         <Image src="res://logo" width="80%" horizontalAlignment="center"></Image>
         <Label text="Air Pollution Monitor" class="title"></Label>
-        <Button text="Scan" (tap)="scan($event)" ng-init="count=0"></Button>
+        <Button class="{{_scanning ? 'scanning' : 'none'}}"
+                text="{{_scanning ? 'Scanning \u27f2' : 'Scan'}}"
+                (tap)="scan($event)"
+                ng-init="count=0"
+                isEnabled="{{!_scanning}}"></Button>
 
         <Label text="Connected Devices" class="subtitle"></Label>
         <Button class='list' *ngFor="let peripheral of _knownPeripherals"
