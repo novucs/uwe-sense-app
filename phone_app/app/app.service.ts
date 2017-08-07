@@ -35,6 +35,8 @@ export interface SensorEntryPPB {
 }
 
 export interface SensorReading {
+    userId: string;
+    userToken: string;
     deviceId: string;
     typeId: string;
     timestamp: Date;
@@ -42,6 +44,13 @@ export interface SensorReading {
 }
 
 export interface RegisterDevice {
+    userId: string;
+    userToken: string;
     deviceId: string;
     typeIds: string[];
+}
+
+export interface RequestDevices {
+    userId: string;
+    userToken: string;
 }

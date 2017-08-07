@@ -1,7 +1,7 @@
 import {Component, OnInit} from "@angular/core";
 import {TextDecoder} from "text-encoding";
 import {ApiService} from "../app.service";
-const googleSignIn = require("nativescript-google-signin");
+import firebase = require("nativescript-plugin-firebase");
 
 @Component({
     selector: "ns-items",
@@ -14,9 +14,25 @@ export class LoginComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        firebase.init({
+        }).then(instance => {
+            console.log("Firebase init done!");
+                firebase.login({
+                    type: firebase.LoginType.GOOGLE
+                }).then(
+                    function (result) {
+                        console.log(JSON.stringify(result));
+                    },
+                    function (errorMessage) {
+                        console.log(errorMessage);
+                    }
+                );
+        },
+        error => {
+            console.log("Firebase init error: " + error);
+        });
     }
 
     submit(): void {
-
     }
 }

@@ -7,7 +7,7 @@ import {PeripheralComponent} from "./component/peripheral.component";
 import {LoginComponent} from "./component/login.component";
 
 const routes: Routes = [
-    {path: "", redirectTo: "/login", pathMatch: "full"},
+    {path: "", redirectTo: "/connect", pathMatch: "full"},
     {path: "login", component: LoginComponent},
     {path: "peripheral", component: PeripheralComponent},
     {path: "connect", component: ConnectComponent},

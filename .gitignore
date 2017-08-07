@@ -18,6 +18,7 @@ phone_app/platforms/*
 !phone_app/platforms/
 phone_app/platforms/android/*
 !phone_app/platforms/android/
+!phone_app/platforms/android/google-services.json
 phone_app/platforms/android/src/*
 !phone_app/platforms/android/src/
 phone_app/platforms/android/src/main/*

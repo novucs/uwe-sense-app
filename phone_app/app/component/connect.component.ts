@@ -3,6 +3,7 @@ import * as bluetooth from "nativescript-bluetooth";
 import {TextDecoder} from "text-encoding";
 import {ApiService, SensorEntryPPB} from "../app.service";
 import * as fileSystem from "file-system";
+import firebase = require("nativescript-plugin-firebase");
 
 const AIR_MONITOR_SERVICE_ID = "a80b";
 
@@ -68,29 +69,49 @@ export class ConnectComponent implements OnInit {
         //         // this._discoveredPeripherals = this._knownPeripherals;
         //     });
         // });
+        firebase.init({}).then(() => {
+                console.log("Firebase init done!");
+                firebase.login({
+                    type: firebase.LoginType.GOOGLE
+                }).then(
+                    function (result) {
+                        console.log(JSON.stringify(result));
+                        console.log("Fetching auth token...");
+                        firebase.getAuthToken({forceRefresh: false})
+                            .then(token => {
+                                console.log("Found token:");
+                                console.log(token);
+                            });
+                    },
+                    function (errorMessage) {
+                        console.log(errorMessage);
+                    }
+                );
+            },
+            error => {
+                console.log("Firebase init error: " + error);
+            });
+    }
 
+    scan(): void {
         bluetooth.hasCoarseLocationPermission().then(granted => {
             if (!granted) {
                 bluetooth.requestCoarseLocationPermission();
             }
 
-            this.scan();
-        });
-    }
+            console.log("STARTING SCANNING");
 
-    scan(): void {
-        console.log("STARTING SCANNING");
+            bluetooth.startScanning({
+                serviceUUIDs: [AIR_MONITOR_SERVICE_ID],
+                seconds: this._scanDurationSeconds,
+                onDiscovered: peripheral => {
+                    if (this._knownPeripherals.has(peripheral)) {
+                        return;
+                    }
 
-        bluetooth.startScanning({
-            serviceUUIDs: [AIR_MONITOR_SERVICE_ID],
-            seconds: this._scanDurationSeconds,
-            onDiscovered: peripheral => {
-                if (this._knownPeripherals.has(peripheral)) {
-                    return;
+                    this._discoveredPeripherals.add(peripheral);
                 }
-
-                this._discoveredPeripherals.add(peripheral);
-            }
+            });
         });
     }
 
