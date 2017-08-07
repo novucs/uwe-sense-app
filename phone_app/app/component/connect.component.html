@@ -1,20 +1,26 @@
+<ActionBar title="Bristol Sense" class="action-bar"></ActionBar>
 <ScrollView>
     <StackLayout class="page" orientation="vertical">
-        <Image src="res://logo" width="80%" horizontalAlignment="center"></Image>
-        <Label text="Air Pollution Monitor" class="title"></Label>
-        <Button class="{{_scanning ? 'scanning' : 'none'}}"
+        <Image src="res://logo" width="75%" horizontalAlignment="center"></Image>
+        <Label text="Bristol Sense Manager" class="title"></Label>
+        <Button class="{{_loggingOut ? 'special' : 'none'}}"
+                text="{{_loggingOut ? 'Logging Out \u27f2' : 'Logout'}}"
+                (tap)="logout($event)"
+                ng-init="count=0"
+                isEnabled="{{!_loggingOut}}"></Button>
+        <Button class="{{_scanning ? 'special' : 'none'}}"
                 text="{{_scanning ? 'Scanning \u27f2' : 'Scan'}}"
                 (tap)="scan($event)"
                 ng-init="count=0"
                 isEnabled="{{!_scanning}}"></Button>
 
         <Label text="Connected Devices" class="subtitle"></Label>
-        <Button class='list' *ngFor="let peripheral of _knownPeripherals"
+        <Button class='dull' *ngFor="let peripheral of _knownPeripherals"
                 [nsRouterLink]="['/peripheral', peripheral]"
                 [text]="''+peripheral.name+' \t\t \uD83D\uDD0B'+peripheral.battery+'%'"></Button>
 
         <Label text="Disconnected Devices" class="subtitle"></Label>
-        <Button class='list' *ngFor="let peripheral of _discoveredPeripherals"
+        <Button class='dull' *ngFor="let peripheral of _discoveredPeripherals"
                 [text]="''+peripheral.name+' \t\t \uD83D\uDD0B'+peripheral.battery+'%'"
                 (tap)="connect(peripheral)"></Button>
     </StackLayout>

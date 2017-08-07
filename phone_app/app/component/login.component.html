@@ -1,7 +1,12 @@
+<ActionBar title="Bristol Sense" class="action-bar"></ActionBar>
 <ScrollView>
     <StackLayout class="page" orientation="vertical">
-        <Image src="res://logo" width="80%" horizontalAlignment="center"></Image>
-        <Label text="Google Login" class="title"></Label>
-        <Button text="Submit" (tap)="submit($event)" [nsRouterLink]="['/connect']"></Button>
+        <Image src="res://logo" width="75%" horizontalAlignment="center"></Image>
+        <Label text="Bristol Sense Login" class="title"></Label>
+        <Button class="{{_signingIn ? 'special' : 'none'}}"
+                text="{{_signingIn ? 'Logging In \u27f2' : 'Login'}}"
+                (tap)="login($event)"
+                ng-init="count=0"
+                isEnabled="{{!_signingIn}}"></Button>
     </StackLayout>
 </ScrollView>

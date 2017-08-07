@@ -4,8 +4,11 @@ import {TextDecoder} from "text-encoding";
 import {ApiService, SensorEntryPPB} from "../app.service";
 import * as fileSystem from "file-system";
 import firebase = require("nativescript-plugin-firebase");
+import {ActivatedRoute} from "@angular/router";
+import {RouterExtensions} from "nativescript-angular";
 
-const SENSOR_SERVICE_ID = "a80b";
+const SENSOR_SERVICE_ID: string = "a80b";
+const SCAN_DURATION_SECONDS: number = 4;
 
 @Component({
     selector: "ns-items",
@@ -14,13 +17,16 @@ const SENSOR_SERVICE_ID = "a80b";
 })
 export class ConnectComponent implements OnInit {
 
-    private _scanDurationSeconds = 4;
-    private _scanning = false;
+    private _loggingOut: boolean = false;
+    private _scanning: boolean = false;
     private _discoveredPeripherals = new Set();
     private _knownPeripherals = new Set();
     private _knownPeripheralsFile;
 
-    constructor(private api: ApiService) {
+    constructor(private routerExtensions: RouterExtensions,
+                private route: ActivatedRoute,
+                private api: ApiService) {
+        console.log(JSON.stringify(route.snapshot.params));
         for (let i = 0; i < 7; i++) {
             if (Math.random() < .5) {
                 this._knownPeripherals.add({
@@ -58,18 +64,13 @@ export class ConnectComponent implements OnInit {
                 console.log("Firebase init done!");
                 firebase.login({
                     type: firebase.LoginType.GOOGLE
-                }).then(
-                    function (result) {
-                        console.log(JSON.stringify(result));
-                        console.log("Fetching auth token...");
+                }).then(result => {
                         firebase.getAuthToken({forceRefresh: false})
                             .then(token => {
-                                console.log("Found token:");
-                                console.log(token);
+                                alert("Successfully logged in as " + result.name);
                             });
-                    },
-                    function (errorMessage) {
-                        console.log(errorMessage);
+                    }, error => {
+                        alert("An error occured during login: " + error);
                     }
                 );
             },
@@ -78,7 +79,18 @@ export class ConnectComponent implements OnInit {
             });
     }
 
+    logout(): void {
+        this._loggingOut = true;
+        firebase.logout().then(() => {
+            this.routerExtensions.navigate(['/login'], {clearHistory: true}).then(() => {
+                alert("Successfully logged out!")
+            });
+        });
+    }
+
     scan(): void {
+        let devicesFound = 0;
+
         bluetooth.hasCoarseLocationPermission().then(granted => {
             if (!granted) {
                 bluetooth.requestCoarseLocationPermission();
@@ -89,8 +101,10 @@ export class ConnectComponent implements OnInit {
             this._scanning = true;
             bluetooth.startScanning({
                 serviceUUIDs: [SENSOR_SERVICE_ID],
-                seconds: this._scanDurationSeconds,
+                seconds: SCAN_DURATION_SECONDS,
                 onDiscovered: peripheral => {
+                    devicesFound++;
+
                     if (this._knownPeripherals.has(peripheral)) {
                         return;
                     }
@@ -99,6 +113,7 @@ export class ConnectComponent implements OnInit {
                 }
             }).then(a => {
                 this._scanning = false;
+                alert("Scan complete, " + devicesFound + " devices found.");
             }).catch(error => {
                 alert("Scanning error: " + error);
             });

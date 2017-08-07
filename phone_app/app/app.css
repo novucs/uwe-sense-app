@@ -54,15 +54,16 @@ Label.subtitle {
 }
 
 Button {
-    color: #deecef;
+    color: white;
     background-color: #009fe3;
 }
 
-Button.scanning {
+Button.special {
+    color: white;
     background-color: #d4412f;
 }
 
-Button.list {
+Button.dull {
     color: black;
     background-color: #deecef;
 }

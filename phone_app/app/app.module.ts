@@ -7,6 +7,8 @@ import {ConnectComponent} from "./component/connect.component";
 import {ApiService} from "./app.service";
 import {PeripheralComponent} from "./component/peripheral.component";
 import {LoginComponent} from "./component/login.component";
+import {NativeScriptRouterModule} from "nativescript-angular";
+import {routes} from "./app.routing";
 
 @NgModule({
     bootstrap: [
@@ -14,7 +16,10 @@ import {LoginComponent} from "./component/login.component";
     ],
     imports: [
         NativeScriptModule,
-        AppRoutingModule
+        AppRoutingModule,
+        NativeScriptModule,
+        NativeScriptRouterModule,
+        NativeScriptRouterModule.forRoot(routes)
     ],
     declarations: [
         AppComponent,
