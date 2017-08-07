@@ -2,7 +2,6 @@ import {Component, OnInit} from "@angular/core";
 import {TextDecoder} from "text-encoding";
 import {ApiService} from "../app.service";
 import {RouterExtensions} from "nativescript-angular";
-import * as dialogs from "ui/dialogs";
 import firebase = require("nativescript-plugin-firebase");
 
 @Component({
@@ -48,8 +47,8 @@ export class LoginComponent implements OnInit {
                         token: token
                     };
 
-                    dialogs.alert("Successfully logged in as " + account.name).then(() => {
-                        this.routerExtensions.navigate(['/connect', params], {clearHistory: true});
+                    this.routerExtensions.navigate(['/connect', params], {clearHistory: true}).then(() => {
+                        alert("Successfully logged in as " + account.name);
                     });
                 });
             }, error => {

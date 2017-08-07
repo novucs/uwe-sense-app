@@ -2,6 +2,8 @@ import {Component, OnInit} from "@angular/core";
 import {TextDecoder} from "text-encoding";
 import {ApiService} from "../app.service";
 import {ActivatedRoute} from "@angular/router";
+import * as dialogs from "ui/dialogs";
+import {RouterExtensions} from "nativescript-angular";
 
 @Component({
     selector: "ns-items",
@@ -11,11 +13,12 @@ import {ActivatedRoute} from "@angular/router";
 })
 export class PeripheralComponent implements OnInit {
 
-    private _zeroToSixty = Array(60).fill(1, 61).map((x,i)=>i);
-    private _zeroToTwentyFour = Array(24).fill(1, 25).map((x,i)=>i);
+    private _zeroToSixty = Array(60).fill(1, 61).map((x, i) => i);
+    private _zeroToTwentyFour = Array(24).fill(1, 25).map((x, i) => i);
     private _peripheral = {name: ""};
 
-    constructor(private route: ActivatedRoute,
+    constructor(private routerExtensions: RouterExtensions,
+                private route: ActivatedRoute,
                 private api: ApiService) {
         this._peripheral = {name: route.snapshot.params["name"]};
     }
@@ -23,7 +26,27 @@ export class PeripheralComponent implements OnInit {
     ngOnInit(): void {
     }
 
-    submit(): void {
-        console.log("Submit button pressed");
+    update(): void {
+        alert("Device settings updated");
+    }
+
+    unregister(): void {
+        dialogs.confirm({
+            title: "Unregister " + this._peripheral.name,
+            message: "Are you sure you wish to unregister this device?",
+            okButtonText: "Yes",
+            cancelButtonText: "No",
+            neutralButtonText: "Cancel"
+        }).then(response => {
+            if (!response) {
+                return;
+            }
+
+            // TODO: Unregister the device.
+
+            dialogs.alert("Device successfully unregistered").then(() => {
+                this.routerExtensions.backToPreviousPage();
+            });
+        });
     }
 }

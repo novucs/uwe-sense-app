@@ -8,7 +8,7 @@
             <ListPicker class="timepicker" [items]="_zeroToSixty" [selectedIndex]="index"></ListPicker>
             <ListPicker class="timepicker" [items]="_zeroToSixty" [selectedIndex]="index"></ListPicker>
         </StackLayout>
-        <Button text="Update" (tap)="submit($event)"></Button>
-        <Button class="special" text="Unregister" (tap)="submit($event)"></Button>
+        <Button text="Update" (tap)="update($event)"></Button>
+        <Button class="special" text="Unregister" (tap)="unregister($event)"></Button>
     </StackLayout>
 </ScrollView>
