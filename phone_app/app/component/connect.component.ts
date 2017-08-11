@@ -59,24 +59,6 @@ export class ConnectComponent implements OnInit {
             this._knownPeripherals = new Set(JSON.parse(content));
             this._knownPeripherals.forEach(peripheral => this.connect(peripheral));
         });
-
-        firebase.init({}).then(() => {
-                console.log("Firebase init done!");
-                firebase.login({
-                    type: firebase.LoginType.GOOGLE
-                }).then(result => {
-                        firebase.getAuthToken({forceRefresh: false})
-                            .then(token => {
-                                alert("Successfully logged in as " + result.name);
-                            });
-                    }, error => {
-                        alert("An error occured during login: " + error);
-                    }
-                );
-            },
-            error => {
-                console.log("Firebase init error: " + error);
-            });
     }
 
     logout(): void {
