@@ -104,8 +104,6 @@ export class ConnectComponent implements OnInit {
 
     connect(peripheral: bluetooth.Peripheral): void {
         console.log("Connecting to peripheral with ID: " + peripheral.UUID);
-        this._discoveredPeripherals.delete(peripheral);
-        this._knownPeripherals.add(peripheral);
 
         bluetooth.connect({
             UUID: peripheral.UUID,
@@ -113,9 +111,12 @@ export class ConnectComponent implements OnInit {
                 this.connectCallback(peripheral);
             },
             onDisconnected: data => {
-                console.log("Disconnected from " + peripheral.UUID + ", data: " + JSON.stringify(data));
+                alert("Disconnected from " + peripheral.name);
             }
-        }).then(a => console.log("a: " + a), b => console.log("b: " + b)).catch(c => console.log("c: " + c));
+        }).then(success => {
+        }, error => {
+            alert("Failed to connect to " + peripheral.name);
+        });
     }
 
     connectCallback(peripheral: bluetooth.Peripheral): void {
@@ -140,6 +141,8 @@ export class ConnectComponent implements OnInit {
         const characteristic = service.characteristics[0];
 
         console.log("READING FROM PERIPHERAL " + peripheral.UUID + " AT SERVICE " + service.UUID + " USING CHARACTERISTIC " + characteristic.UUID);
+        this._discoveredPeripherals.delete(peripheral);
+        this._knownPeripherals.add(peripheral);
 
         bluetooth.startNotifying({
             peripheralUUID: peripheral.UUID,
