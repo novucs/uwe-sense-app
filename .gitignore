@@ -1,17 +1,5 @@
-# Main project
 .idea/
-
-# Peripheral
-peripheral/build/
-
-# Peripheral test
-peripheral_test/build/
-peripheral_test/node_modules/
-peripheral_test/package-lock.json
-
-# Phone app
-phone_app/app/*.js
-phone_app/app/*/*.js
-phone_app/node_modules/
-phone_app/package-lock.json
-phone_app/platforms/
+*.js
+node_modules/
+package-lock.json
+platforms/
