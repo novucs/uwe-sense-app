@@ -1,11 +1,11 @@
 import {Component, NgZone, OnInit} from "@angular/core";
 import * as bluetooth from "nativescript-bluetooth";
 import {TextDecoder} from "text-encoding";
-import {ApiService, SensorEntryPPB} from "../app.service";
+import {ApiService, SensorReading, SessionInfo} from "../app.service";
 import * as fileSystem from "file-system";
-import firebase = require("nativescript-plugin-firebase");
 import {ActivatedRoute} from "@angular/router";
 import {RouterExtensions} from "nativescript-angular";
+import firebase = require("nativescript-plugin-firebase");
 
 const SENSOR_SERVICE_ID: string = "a80b";
 const SCAN_DURATION_SECONDS: number = 4;
@@ -154,7 +154,8 @@ export class ConnectComponent implements OnInit {
         const characteristic = service.characteristics[0];
         this.deletePeripheral(this._discoveredPeripherals, peripheral.UUID);
         this.addPeripheral(this._knownPeripherals, peripheral);
-        this.zone.run(() => {}); // Force page refresh, for some reason it doesn't naturally update here.
+        this.zone.run(() => {
+        }); // Force page refresh, for some reason it doesn't naturally update here.
         alert("Connected to " + peripheral.name);
 
         bluetooth.startNotifying({
@@ -166,13 +167,19 @@ export class ConnectComponent implements OnInit {
                 const particlesPerBillion = data[1];
                 console.log(particlesPerBillion);
 
-                const entry: SensorEntryPPB = {
-                    uuid: peripheral.UUID,
+                const session: SessionInfo = {
+                    id: this._accountId,
+                    token: this._token
+                };
+
+                const reading: SensorReading = {
+                    deviceId: peripheral.UUID,
+                    typeId: "Carbon Emissions",
                     timestamp: new Date(),
                     data: particlesPerBillion
                 };
 
-                this.api.submitSensorEntryPPB(entry);
+                this.api.postSensorReading(session, reading);
             }
         }).then(() => {
             console.log("Notifications subscribed");
