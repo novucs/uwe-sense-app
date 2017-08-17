@@ -1,7 +1,7 @@
 import {Injectable} from "@angular/core";
 import "rxjs/add/operator/map";
-import {Headers, Http, RequestOptions} from "@angular/http";
-// const http = require("http");
+// import {Headers, Http, RequestOptions} from "@angular/http";
+const http = require("http");
 
 @Injectable()
 export class ApiService {
@@ -11,20 +11,20 @@ export class ApiService {
         get: "https://httpbin.org/get"
     };
 
-    constructor(private http: Http) {
+    constructor() {
     }
 
     private post(session: SessionInfo, entry: any) {
-        const headers = new Headers({"Content-Type": "application/json"});
-        const options = new RequestOptions({headers: headers});
-        const body = JSON.stringify(entry);
-
-        return this.http.post(this.server.post, body, options)
-            .subscribe(data => {
-                console.log(data.json());
-            }, error => {
-                console.log(error);
-            });
+        http.request({
+            url: this.server.post,
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            content: JSON.stringify(entry)
+        }).then(response => {
+            console.log("Post response: " + response ? JSON.stringify(response.headers) : {});
+        }, error => {
+            console.log("Error occurred " + error);
+        });
     }
 
     postSensorReading(session: SessionInfo, reading: SensorReading) {
@@ -36,10 +36,12 @@ export class ApiService {
     }
 
     getDevices(session: SessionInfo, request: RequestDevices) {
-        const headers = new Headers({"Content-Type": "application/json"});
-        const options = new RequestOptions({headers: headers});
-        this.http.get("/api/schedule/groups/", options)
-            .map(res => res.json());
+        http.request({url: this.server.get, method: "GET"}).then(response => {
+            var str = response.content.toString();
+            var obj = response.content.toJSON();
+            var img = response.content.toImage();
+        }, e => {
+        });
     }
 
     // submitSensorEntryPPB(entry: SensorEntryPPB) {

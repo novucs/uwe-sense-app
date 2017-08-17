@@ -9,7 +9,6 @@ import {PeripheralComponent} from "./component/peripheral.component";
 import {LoginComponent} from "./component/login.component";
 import {NativeScriptRouterModule} from "nativescript-angular";
 import {routes} from "./app.routing";
-import {Http} from "@angular/http";
 
 @NgModule({
     bootstrap: [
@@ -18,7 +17,6 @@ import {Http} from "@angular/http";
     imports: [
         NativeScriptModule,
         AppRoutingModule,
-        Http,
         NativeScriptModule,
         NativeScriptRouterModule,
         NativeScriptRouterModule.forRoot(routes)
