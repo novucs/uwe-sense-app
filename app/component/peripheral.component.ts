@@ -15,8 +15,8 @@ import {RouterExtensions} from "nativescript-angular";
 })
 export class PeripheralComponent implements OnInit {
 
-    private _accountId;
-    private _token;
+    // private _accountId;
+    // private _token;
     private _updating: boolean = false;
     private _zeroToSixty = Array(60).fill(1, 61).map((x, i) => i);
     private _zeroToTwentyFour = Array(24).fill(1, 25).map((x, i) => i);
@@ -27,8 +27,8 @@ export class PeripheralComponent implements OnInit {
     constructor(private routerExtensions: RouterExtensions,
                 private route: ActivatedRoute,
                 private api: ApiService) {
-        this._accountId = route.snapshot.params["accountId"];
-        this._token = route.snapshot.params["token"];
+        // this._accountId = route.snapshot.params["accountId"];
+        // this._token = route.snapshot.params["token"];
         this._peripheral = {
             UUID: route.snapshot.params["peripheralId"],
             name: route.snapshot.params["peripheralName"]
@@ -81,8 +81,8 @@ export class PeripheralComponent implements OnInit {
 
             dialogs.alert("Device successfully unregistered").then(() => {
                 const params = {
-                    accountId: this._accountId,
-                    token: this._token
+                    // accountId: this._accountId,
+                    // token: this._token
                 };
 
                 this.routerExtensions.navigate(['/connect', params], {clearHistory: true});

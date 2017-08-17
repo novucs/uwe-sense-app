@@ -1,6 +1,6 @@
 import {Component, OnInit} from "@angular/core";
 import {TextDecoder} from "text-encoding";
-import {ApiService} from "../app.service";
+import {ApiService, Authenticate} from "../app.service";
 import {RouterExtensions} from "nativescript-angular";
 import firebase = require("nativescript-plugin-firebase");
 
@@ -42,9 +42,16 @@ export class LoginComponent implements OnInit {
             type: firebase.LoginType.GOOGLE
         }).then(account => {
                 firebase.getAuthToken({forceRefresh: false}).then(token => {
+                    const session: Authenticate = {
+                        email: account.email,
+                        secret: token
+                    };
+
+                    this.api.authenticate(session);
+
                     const params = {
-                        accountId: account.uid,
-                        token: token
+                        // accountId: account.uid,
+                        // token: token
                     };
 
                     this.routerExtensions.navigate(['/connect', params], {clearHistory: true}).then(() => {

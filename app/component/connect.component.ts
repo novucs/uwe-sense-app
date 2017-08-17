@@ -1,7 +1,7 @@
 import {Component, NgZone, OnInit} from "@angular/core";
 import * as bluetooth from "nativescript-bluetooth";
 import {TextDecoder} from "text-encoding";
-import {ApiService, SensorReading, SessionInfo} from "../app.service";
+import {ApiService, SensorReading, Authenticate} from "../app.service";
 import * as fileSystem from "file-system";
 import {ActivatedRoute} from "@angular/router";
 import {RouterExtensions} from "nativescript-angular";
@@ -17,8 +17,8 @@ const SCAN_DURATION_SECONDS: number = 4;
 })
 export class ConnectComponent implements OnInit {
 
-    private _accountId;
-    private _token;
+    // private _accountId;
+    // private _token;
     private _loggingOut: boolean = false;
     private _scanning: boolean = false;
     private _discoveredPeripherals = [];
@@ -30,8 +30,8 @@ export class ConnectComponent implements OnInit {
                 private route: ActivatedRoute,
                 private api: ApiService) {
         console.log(JSON.stringify(route.snapshot.params));
-        this._accountId = route.snapshot.params["accountId"];
-        this._token = route.snapshot.params["token"];
+        // this._accountId = route.snapshot.params["accountId"];
+        // this._token = route.snapshot.params["token"];
         // for (let i = 0; i < 7; i++) {
         //     let peripheral = {
         //         UUID: '6544' + i,
@@ -108,8 +108,8 @@ export class ConnectComponent implements OnInit {
 
     configure(peripheral: bluetooth.Peripheral): void {
         const params = {
-            accountId: this._accountId,
-            token: this._token,
+            // accountId: this._accountId,
+            // token: this._token,
             peripheralId: peripheral.UUID,
             peripheralName: peripheral.name
         };
@@ -136,13 +136,12 @@ export class ConnectComponent implements OnInit {
 
     connectCallback(peripheral: bluetooth.Peripheral): void {
         // Save peripherals.
-
         const serializedPeripherals = JSON.stringify(Array.from(this._knownPeripherals));
         console.log("WRITING: " + serializedPeripherals);
+
         this._knownPeripheralsFile.writeText(serializedPeripherals).then(value => {
             console.log("WRITE SUCCESS: " + value);
         });
-
 
         const service = ConnectComponent.getAirMonitorService(peripheral);
 
@@ -158,6 +157,11 @@ export class ConnectComponent implements OnInit {
         }); // Force page refresh, for some reason it doesn't naturally update here.
         alert("Connected to " + peripheral.name);
 
+        this.api.createDevice({
+            deviceId: peripheral.UUID,
+            typeIds: service.characteristics
+        });
+
         bluetooth.startNotifying({
             peripheralUUID: peripheral.UUID,
             serviceUUID: service.UUID,
@@ -167,11 +171,6 @@ export class ConnectComponent implements OnInit {
                 const particlesPerBillion = data[1];
                 console.log(particlesPerBillion);
 
-                const session: SessionInfo = {
-                    id: this._accountId,
-                    token: this._token
-                };
-
                 const reading: SensorReading = {
                     deviceId: peripheral.UUID,
                     typeId: "Carbon Emissions",
@@ -179,7 +178,7 @@ export class ConnectComponent implements OnInit {
                     data: particlesPerBillion
                 };
 
-                this.api.postSensorReading(session, reading);
+                this.api.submitReading(reading);
             }
         }).then(() => {
             console.log("Notifications subscribed");
