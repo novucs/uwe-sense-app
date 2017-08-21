@@ -64,7 +64,7 @@ export class ConnectComponent implements OnInit {
     logout(): void {
         this._loggingOut = true;
         firebase.logout().then(() => {
-            this.routerExtensions.navigate(['/login'], {clearHistory: true}).then(() => {
+            this.routerExtensions.navigate(['/login'], {clearHistory: false}).then(() => {
                 alert("Successfully logged out!")
             });
         });
@@ -114,7 +114,7 @@ export class ConnectComponent implements OnInit {
             peripheralName: peripheral.name
         };
 
-        this.routerExtensions.navigate(['/peripheral', params], {clearHistory: true});
+        this.routerExtensions.navigate(['/peripheral', params], {clearHistory: false});
     }
 
     connect(peripheral: bluetooth.Peripheral): void {

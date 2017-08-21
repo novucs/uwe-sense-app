@@ -51,7 +51,7 @@ export class PeripheralComponent implements OnInit {
         this._updating = true;
 
         dialogs.alert("Device successfully updated").then(() => {
-            this.routerExtensions.navigate(['/connect'], {clearHistory: true});
+            this.routerExtensions.navigate(['/connect'], {clearHistory: false});
         });
 
         this._updating = false;

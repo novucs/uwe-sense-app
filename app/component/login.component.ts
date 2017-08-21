@@ -48,7 +48,7 @@ export class LoginComponent implements OnInit {
                     };
 
                     this.api.authenticate(session);
-                    this.routerExtensions.navigate(['/connect'], {clearHistory: true}).then(() => {
+                    this.routerExtensions.navigate(['/connect'], {clearHistory: false}).then(() => {
                         alert("Successfully logged in as " + account.name);
                     });
                 });
