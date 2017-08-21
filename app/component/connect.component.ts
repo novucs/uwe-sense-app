@@ -21,8 +21,9 @@ export class ConnectComponent implements OnInit {
     // private _token;
     private _loggingOut: boolean = false;
     private _scanning: boolean = false;
-    private _discoveredPeripherals = [];
-    private _knownPeripherals = [];
+    private _disconnectedKnownPeripherals = [];
+    private _disconnectedPeripherals = [];
+    private _connectedPeripherals = [];
     private _knownPeripheralsFile;
 
     constructor(private zone: NgZone,
@@ -57,7 +58,7 @@ export class ConnectComponent implements OnInit {
             }
 
             console.log("Known peripherals: " + content);
-            this._knownPeripherals = JSON.parse(content);
+            this._disconnectedKnownPeripherals = JSON.parse(content);
         });
     }
 
@@ -85,14 +86,14 @@ export class ConnectComponent implements OnInit {
                 serviceUUIDs: [SENSOR_SERVICE_ID],
                 seconds: SCAN_DURATION_SECONDS,
                 onDiscovered: peripheral => {
-                    if (this.findPeripheral(this._knownPeripherals, peripheral.UUID)) {
+                    if (this.findPeripheral(this._connectedPeripherals, peripheral.UUID)) {
                         this.connect(peripheral);
                         devicesFound++;
                         return;
                     }
 
-                    if (!this.findPeripheral(this._discoveredPeripherals, peripheral.UUID)) {
-                        this._discoveredPeripherals.push(peripheral);
+                    if (!this.findPeripheral(this._disconnectedPeripherals, peripheral.UUID)) {
+                        this._disconnectedPeripherals.push(peripheral);
                         devicesFound++;
                         return;
                     }
@@ -117,15 +118,17 @@ export class ConnectComponent implements OnInit {
         this.routerExtensions.navigate(['/peripheral', params], {clearHistory: false});
     }
 
-    connect(peripheral: bluetooth.Peripheral): void {
-        console.log("Connecting to peripheral with ID: " + peripheral.UUID);
-
+    connect(peripheral: any): void {
+        peripheral.connecting = true;
         bluetooth.connect({
             UUID: peripheral.UUID,
             onConnected: peripheral => {
                 this.connectCallback(peripheral);
             },
             onDisconnected: data => {
+                peripheral.connecting = false;
+                this.zone.run(() => {
+                }); // Force page refresh, for some reason it doesn't naturally update here.
                 alert("Disconnected from " + peripheral.name);
             }
         }).then(success => {
@@ -136,11 +139,11 @@ export class ConnectComponent implements OnInit {
 
     connectCallback(peripheral: bluetooth.Peripheral): void {
         // Save peripherals.
-        const serializedPeripherals = JSON.stringify(Array.from(this._knownPeripherals));
-        console.log("WRITING: " + serializedPeripherals);
+        this._connectedPeripherals.push(peripheral);
+        const serializedPeripherals = JSON.stringify(Array.from(this._connectedPeripherals));
 
-        this._knownPeripheralsFile.writeText(serializedPeripherals).then(value => {
-            console.log("WRITE SUCCESS: " + value);
+        this._knownPeripheralsFile.writeText(serializedPeripherals).then(() => {
+            console.log("Successfully saved known devices to file");
         });
 
         const service = ConnectComponent.getAirMonitorService(peripheral);
@@ -151,8 +154,9 @@ export class ConnectComponent implements OnInit {
         }
 
         const characteristic = service.characteristics[0];
-        this.deletePeripheral(this._discoveredPeripherals, peripheral.UUID);
-        this.addPeripheral(this._knownPeripherals, peripheral);
+        this.deletePeripheral(this._disconnectedKnownPeripherals, peripheral.UUID);
+        this.deletePeripheral(this._disconnectedPeripherals, peripheral.UUID);
+        this.addPeripheral(this._connectedPeripherals, peripheral);
         this.zone.run(() => {
         }); // Force page refresh, for some reason it doesn't naturally update here.
         alert("Connected to " + peripheral.name);
