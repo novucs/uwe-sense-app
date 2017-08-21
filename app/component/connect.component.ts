@@ -1,7 +1,7 @@
 import {Component, NgZone, OnInit} from "@angular/core";
 import * as bluetooth from "nativescript-bluetooth";
 import {TextDecoder} from "text-encoding";
-import {ApiService, SensorReading, Authenticate} from "../app.service";
+import {ApiService, SensorReading} from "../app.service";
 import * as fileSystem from "file-system";
 import {ActivatedRoute} from "@angular/router";
 import {RouterExtensions} from "nativescript-angular";
@@ -9,6 +9,9 @@ import firebase = require("nativescript-plugin-firebase");
 
 const SENSOR_SERVICE_ID: string = "a80b";
 const SCAN_DURATION_SECONDS: number = 4;
+const NOTIFY_CHARACTERISTICS = {
+    "b4fbc6ce-380f-4ec1-be0a-d163efcf02c4": "Button Press"
+};
 
 @Component({
     selector: "ns-items",
@@ -153,7 +156,6 @@ export class ConnectComponent implements OnInit {
             return;
         }
 
-        const characteristic = service.characteristics[0];
         this.deletePeripheral(this._disconnectedKnownPeripherals, peripheral.UUID);
         this.deletePeripheral(this._disconnectedPeripherals, peripheral.UUID);
         this.addPeripheral(this._connectedPeripherals, peripheral);
@@ -166,27 +168,36 @@ export class ConnectComponent implements OnInit {
             typeIds: service.characteristics
         });
 
-        bluetooth.startNotifying({
-            peripheralUUID: peripheral.UUID,
-            serviceUUID: service.UUID,
-            characteristicUUID: characteristic.UUID,
-            onNotify: result => {
-                const data = new Uint8Array(result.value);
-                const particlesPerBillion = data[1];
-                console.log(particlesPerBillion);
+        for (let i = 0; i < service.characteristics.length; i++) {
+            const characteristicId: string = service.characteristics[i].UUID;
+            const typeId = NOTIFY_CHARACTERISTICS[characteristicId];
 
-                const reading: SensorReading = {
-                    deviceId: peripheral.UUID,
-                    typeId: "Carbon Emissions",
-                    timestamp: new Date(),
-                    data: particlesPerBillion
-                };
-
-                this.api.submitReading(reading);
+            if (!typeId) {
+                continue;
             }
-        }).then(() => {
-            console.log("Notifications subscribed");
-        });
+
+            bluetooth.startNotifying({
+                peripheralUUID: peripheral.UUID,
+                serviceUUID: service.UUID,
+                characteristicUUID: characteristicId,
+                onNotify: result => {
+                    const data = new Uint8Array(result.value);
+                    const value = data[1];
+                    console.log("Received data for " + typeId + ": " + value);
+
+                    const reading: SensorReading = {
+                        deviceId: peripheral.UUID,
+                        typeId: typeId,
+                        timestamp: new Date(),
+                        data: value
+                    };
+
+                    this.api.submitReading(reading);
+                }
+            }).then(() => {
+                console.log("Notifications subscribed");
+            });
+        }
     }
 
     addPeripheral(peripherals: any[], peripheral: any): void {
