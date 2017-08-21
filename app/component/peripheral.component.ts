@@ -49,7 +49,11 @@ export class PeripheralComponent implements OnInit {
 
     update(): void {
         this._updating = true;
-        alert("Device settings updated");
+
+        dialogs.alert("Device successfully updated").then(() => {
+            this.routerExtensions.navigate(['/connect'], {clearHistory: true});
+        });
+
         this._updating = false;
     }
 
@@ -80,12 +84,7 @@ export class PeripheralComponent implements OnInit {
             bluetooth.disconnect({UUID: this._peripheral.UUID});
 
             dialogs.alert("Device successfully unregistered").then(() => {
-                const params = {
-                    // accountId: this._accountId,
-                    // token: this._token
-                };
-
-                this.routerExtensions.navigate(['/connect', params], {clearHistory: true});
+                this.routerExtensions.navigate(['/connect'], {clearHistory: true});
             });
         });
     }

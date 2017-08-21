@@ -48,13 +48,7 @@ export class LoginComponent implements OnInit {
                     };
 
                     this.api.authenticate(session);
-
-                    const params = {
-                        // accountId: account.uid,
-                        // token: token
-                    };
-
-                    this.routerExtensions.navigate(['/connect', params], {clearHistory: true}).then(() => {
+                    this.routerExtensions.navigate(['/connect'], {clearHistory: true}).then(() => {
                         alert("Successfully logged in as " + account.name);
                     });
                 });
