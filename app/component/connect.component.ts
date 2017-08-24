@@ -144,6 +144,7 @@ export class ConnectComponent implements OnInit {
             },
             onDisconnected: data => {
                 this._connectingIds.delete(peripheral.UUID);
+                this.deletePeripheral(this._connectedPeripherals, peripheral.UUID);
                 peripheral.connecting = false;
                 this.zone.run(() => {
                 }); // Force page refresh, for some reason it doesn't naturally update here.

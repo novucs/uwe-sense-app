@@ -9,7 +9,7 @@ import {RouterExtensions} from "nativescript-angular";
 import {ListPicker} from "tns-core-modules/ui/list-picker";
 
 const SENSOR_SERVICE_ID: string = "a80b";
-const SENSOR_CHARACTERISTIC_NOTIFY_ID: string = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+const SENSOR_CHARACTERISTIC_WRITE_ID: string = "b4fbc6ce-380f-4ec1-be0a-d163efcf02c4";
 
 @Component({
     selector: "ns-items",
@@ -62,13 +62,14 @@ export class PeripheralComponent implements OnInit {
         bluetooth.write({
             peripheralUUID: this._peripheral.UUID,
             serviceUUID: SENSOR_SERVICE_ID,
-            characteristicUUID: SENSOR_CHARACTERISTIC_NOTIFY_ID,
+            characteristicUUID: SENSOR_CHARACTERISTIC_WRITE_ID,
             value: time
         }).then(() => {
             dialogs.alert("Device successfully updated").then(() => {
                 this.routerExtensions.navigate(['/connect'], {clearHistory: true});
             });
-        }, () => {
+        }, error => {
+            console.log(error);
             dialogs.alert("Device update failed").then(() => {
                 this.routerExtensions.navigate(['/connect'], {clearHistory: true});
             });
