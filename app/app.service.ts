@@ -8,12 +8,17 @@ const http = require("http");
 export class ApiService {
 
     private baseUrl = "http://ec2-35-166-177-195.us-west-2.compute.amazonaws.com:8080";
-    private authenticateUrl = this.baseUrl + "/citizen-sensing/authenticate-user-jwt";
+    private authenticateUrl = this.baseUrl + "/citizen-sensing/authenticate-user-jwt?provider=firebase";
     private dataPublishingUrl = this.baseUrl + "/citizen-sensing/device-data-publishing";
     private createDeviceUrl = this.baseUrl + "/citizen-sensing/register-device-with-hardware-id";
     private authorisationJwt = "";
+    private idToken = "";
 
     constructor() {
+    }
+
+    public setIdToken(token: string) {
+        this.idToken = token;
     }
 
     private base64url(source) {
@@ -43,35 +48,26 @@ export class ApiService {
         return encodedHeader + "." + encodedData + "." + signature;
     }
 
-    authenticate(entry: Authenticate) {
-        const headers = {
-            "alg": "HS256",
-            "typ": "JWT"
-        };
-
-        const data = {
-            "iss": "sensor app",
-            "sub": entry.email
-        };
-
-        const jwt = this.createJWT(headers, data, entry.secret);
-
-        console.log("Sending token: ", jwt);
+    authenticate(token: string, successCallback: any, errorCallback: any) {
+        const headers = {};
 
         http.request({
             method: "POST",
             url: this.authenticateUrl,
             headers: headers,
-            content: jwt
+            content: token
         }).then(response => {
-            console.log("Token: " + response);
-            this.authorisationJwt = response;
+            console.log("Token: " + response.content.toString());
+            this.authorisationJwt = response.content.toString();
+            successCallback(response);
         }, error => {
             console.log("Error occurred: " + error);
+            errorCallback(error);
         });
     }
 
     createDevice(data: CreateDevice) {
+        console.log("Authorization token: " + this.authorisationJwt);
         const headers = {
             "Authorization": "Bearer " + this.authorisationJwt,
             "Content-Type": "application/json"
@@ -84,6 +80,7 @@ export class ApiService {
             content: JSON.stringify(data)
         }).then(response => {
             console.log("Posted data: " + response);
+            console.log("Stringified data: " + response.content.toString());
         }, error => {
             console.log("Error occurred: " + error);
         });

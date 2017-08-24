@@ -178,9 +178,15 @@ export class ConnectComponent implements OnInit {
         this.zone.run(() => {
         }); // Force page refresh, for some reason it doesn't naturally update here.
 
+        let typeIds = [];
+
+        for (let key in NOTIFY_CHARACTERISTICS) {
+            typeIds.push(NOTIFY_CHARACTERISTICS[key]);
+        }
+
         this.api.createDevice({
             deviceId: peripheral.UUID,
-            typeIds: service.characteristics
+            typeIds: typeIds
         });
 
         for (let i = 0; i < service.characteristics.length; i++) {

@@ -46,15 +46,13 @@ export class LoginComponent implements OnInit {
         firebase.login({
             type: firebase.LoginType.GOOGLE
         }).then(account => {
-                firebase.getAuthToken({forceRefresh: false}).then(token => {
-                    const session: Authenticate = {
-                        email: account.email,
-                        secret: token
-                    };
-
-                    this.api.authenticate(session);
-                    this.routerExtensions.navigate(['/connect'], {clearHistory: false}).then(() => {
-                        alert("Successfully logged in as " + account.name);
+                firebase.getAuthToken({forceRefresh: true}).then(token => {
+                    this.api.authenticate(token, success => {
+                        this.routerExtensions.navigate(['/connect'], {clearHistory: false}).then(() => {
+                            alert("Successfully logged in as " + account.name);
+                        });
+                    }, error => {
+                        alert("Login failed: " + error);
                     });
                 });
             }, error => {
