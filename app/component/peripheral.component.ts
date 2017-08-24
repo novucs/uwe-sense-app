@@ -49,7 +49,6 @@ export class PeripheralComponent implements OnInit {
                 return;
             }
 
-            console.log("Connecting to previously discovered peripherals: " + content);
             this._knownPeripherals = JSON.parse(content);
         });
     }
@@ -63,7 +62,7 @@ export class PeripheralComponent implements OnInit {
             peripheralUUID: this._peripheral.UUID,
             serviceUUID: SENSOR_SERVICE_ID,
             characteristicUUID: SENSOR_CHARACTERISTIC_WRITE_ID,
-            value: time
+            value: '0x' + time.toString(16)
         }).then(() => {
             dialogs.alert("Device successfully updated").then(() => {
                 this.routerExtensions.navigate(['/connect'], {clearHistory: true});
