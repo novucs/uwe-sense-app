@@ -21,11 +21,11 @@
         <Button *ngFor="let peripheral of _disconnectedKnownPeripherals"
                 class="{{peripheral.connecting ? 'special' : 'dull'}}"
                 text="{{peripheral.connecting ? (peripheral.name + ' \t\t Connecting...') : (peripheral.name + ' (known) \uD83D\uDD0B' + peripheral.battery + '%')}}"
-                (tap)="connect(peripheral)"
+                (tap)="connect(peripheral, true)"
                 (longPress)="configure(peripheral)"></Button>
         <Button *ngFor="let peripheral of _disconnectedPeripherals"
                 class="{{peripheral.connecting ? 'special' : 'dull'}}"
                 text="{{peripheral.connecting ? (peripheral.name + ' \t\t Connecting...') : (peripheral.name + ' \uD83D\uDD0B' + peripheral.battery + '%')}}"
-                (tap)="connect(peripheral)"></Button>
+                (tap)="connect(peripheral, true)"></Button>
     </StackLayout>
 </ScrollView>

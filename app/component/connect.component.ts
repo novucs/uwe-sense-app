@@ -27,6 +27,7 @@ export class ConnectComponent implements OnInit {
     private _disconnectedKnownPeripherals = [];
     private _disconnectedPeripherals = [];
     private _connectedPeripherals = [];
+    private _connectingIds = new Set();
     private _knownPeripheralsFile;
 
     constructor(private zone: NgZone,
@@ -62,6 +63,10 @@ export class ConnectComponent implements OnInit {
 
             console.log("Known peripherals: " + content);
             this._disconnectedKnownPeripherals = JSON.parse(content);
+
+            for (let i = 0; i < this._disconnectedKnownPeripherals.length; i++) {
+                this.connect(this._disconnectedKnownPeripherals[i], false);
+            }
         });
     }
 
@@ -89,8 +94,8 @@ export class ConnectComponent implements OnInit {
                 serviceUUIDs: [SENSOR_SERVICE_ID],
                 seconds: SCAN_DURATION_SECONDS,
                 onDiscovered: peripheral => {
-                    if (this.findPeripheral(this._connectedPeripherals, peripheral.UUID)) {
-                        this.connect(peripheral);
+                    if (this.findPeripheral(this._disconnectedKnownPeripherals, peripheral.UUID)) {
+                        this.connect(peripheral, true);
                         devicesFound++;
                         return;
                     }
@@ -121,22 +126,29 @@ export class ConnectComponent implements OnInit {
         this.routerExtensions.navigate(['/peripheral', params], {clearHistory: false});
     }
 
-    connect(peripheral: any): void {
+    connect(peripheral: any, msg: boolean): void {
+        if (this._connectingIds.has(peripheral.UUID)) {
+            alert("Already connecting to " + peripheral.name);
+            return;
+        }
+
+        this._connectingIds.add(peripheral.UUID);
         peripheral.connecting = true;
         bluetooth.connect({
             UUID: peripheral.UUID,
             onConnected: peripheral => {
                 this.connectCallback(peripheral);
+                if (msg) {
+                    alert("Connected to " + peripheral.name);
+                }
             },
             onDisconnected: data => {
+                this._connectingIds.delete(peripheral.UUID);
                 peripheral.connecting = false;
                 this.zone.run(() => {
                 }); // Force page refresh, for some reason it doesn't naturally update here.
                 alert("Disconnected from " + peripheral.name);
             }
-        }).then(success => {
-        }, error => {
-            alert("Failed to connect to " + peripheral.name);
         });
     }
 
@@ -161,7 +173,6 @@ export class ConnectComponent implements OnInit {
         this.addPeripheral(this._connectedPeripherals, peripheral);
         this.zone.run(() => {
         }); // Force page refresh, for some reason it doesn't naturally update here.
-        alert("Connected to " + peripheral.name);
 
         this.api.createDevice({
             deviceId: peripheral.UUID,
