@@ -6,12 +6,15 @@ import * as bluetooth from "nativescript-bluetooth";
 import * as dialogs from "ui/dialogs";
 import * as fileSystem from "file-system";
 import {RouterExtensions} from "nativescript-angular";
+import {ListPicker} from "tns-core-modules/ui/list-picker";
+
+const SENSOR_SERVICE_ID: string = "a80b";
+const SENSOR_CHARACTERISTIC_WRITE_ID: string = "b4fbc6ce-380f-4ec1-be0a-d163efcf02c4";
 
 @Component({
     selector: "ns-items",
     moduleId: module.id,
     templateUrl: "./peripheral.component.html",
-    // template: '<numberpicker:NumberPicker value="3" minValue="2" maxValue="6" id="np"></numberpicker:NumberPicker>'
 })
 export class PeripheralComponent implements OnInit {
 
@@ -23,6 +26,10 @@ export class PeripheralComponent implements OnInit {
     private _peripheral;
     private _knownPeripherals = [];
     private _knownPeripheralsFile;
+
+    private _seconds;
+    private _minutes;
+    private _hours;
 
     constructor(private routerExtensions: RouterExtensions,
                 private route: ActivatedRoute,
@@ -42,14 +49,31 @@ export class PeripheralComponent implements OnInit {
                 return;
             }
 
-            console.log("Connecting to previously discovered peripherals: " + content);
             this._knownPeripherals = JSON.parse(content);
         });
     }
 
     update(): void {
         this._updating = true;
-        alert("Device settings updated");
+
+        const time = (this._hours * 60 * 60) + (this._minutes * 60) + this._seconds;
+
+        bluetooth.write({
+            peripheralUUID: this._peripheral.UUID,
+            serviceUUID: SENSOR_SERVICE_ID,
+            characteristicUUID: SENSOR_CHARACTERISTIC_WRITE_ID,
+            value: '0x' + time.toString(16)
+        }).then(() => {
+            dialogs.alert("Device successfully updated").then(() => {
+                this.routerExtensions.navigate(['/connect'], {clearHistory: true});
+            });
+        }, error => {
+            console.log(error);
+            dialogs.alert("Device update failed").then(() => {
+                this.routerExtensions.navigate(['/connect'], {clearHistory: true});
+            });
+        });
+
         this._updating = false;
     }
 
@@ -80,13 +104,23 @@ export class PeripheralComponent implements OnInit {
             bluetooth.disconnect({UUID: this._peripheral.UUID});
 
             dialogs.alert("Device successfully unregistered").then(() => {
-                const params = {
-                    // accountId: this._accountId,
-                    // token: this._token
-                };
-
-                this.routerExtensions.navigate(['/connect', params], {clearHistory: true});
+                this.routerExtensions.navigate(['/connect'], {clearHistory: true});
             });
         });
+    }
+
+    public changeHours(args) {
+        let picker = <ListPicker>args.object;
+        this._hours = picker.selectedIndex;
+    }
+
+    public changeMinutes(args) {
+        let picker = <ListPicker>args.object;
+        this._minutes = picker.selectedIndex;
+    }
+
+    public changeSeconds(args) {
+        let picker = <ListPicker>args.object;
+        this._seconds = picker.selectedIndex;
     }
 }
