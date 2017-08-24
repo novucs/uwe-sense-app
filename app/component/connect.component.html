@@ -3,7 +3,7 @@
     <StackLayout class="page" orientation="vertical">
         <Image src="res://logo" width="75%" horizontalAlignment="center"></Image>
         <Label text="Bristol Sense Manager" class="title"></Label>
-        <Button class="about" text="About" (tap)="goAbout($event)"></Button>
+        <Button text="About" (tap)="goAbout($event)"></Button>
         <Button class="{{_loggingOut ? 'special' : 'none'}}"
                 text="{{_loggingOut ? 'Logging Out \u27f2' : 'Logout'}}"
                 (tap)="logout($event)"
