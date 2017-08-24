@@ -1,9 +1,8 @@
 import {Component, OnInit} from "@angular/core";
 import {TextDecoder} from "text-encoding";
-import {ApiService, Authenticate} from "../app.service";
 import {RouterExtensions} from "nativescript-angular";
-import firebase = require("nativescript-plugin-firebase");
-import {Location} from '@angular/common';
+import {ActivatedRoute} from "@angular/router";
+
 @Component({
     selector: "ns-items",
     moduleId: module.id,
@@ -11,21 +10,17 @@ import {Location} from '@angular/common';
 })
 export class AboutComponent implements OnInit {
 
+    private _previousPage: string;
 
     constructor(private routerExtensions: RouterExtensions,
-                private api: ApiService, private _location: Location) {
+                private route: ActivatedRoute) {
+        this._previousPage = route.snapshot.params["page"];
     }
-
-
-
 
     ngOnInit(): void {
-
     }
 
-  back(){
-
-      this.routerExtensions.navigate(['/login'], {clearHistory: true});
-
-  }
+    back() {
+        this.routerExtensions.navigate([this._previousPage], {clearHistory: true});
+    }
 }

@@ -18,14 +18,10 @@ export class LoginComponent implements OnInit {
                 private api: ApiService) {
     }
 
-
     goAbout(): void {
-      
-      this.routerExtensions.navigate(['/about'], {clearHistory: true});
+        const params = {page: "/login"};
+        this.routerExtensions.navigate(['/about', params], {clearHistory: true});
     }
-
-
-
 
     ngOnInit(): void {
         if (this._firebaseInitialized) {

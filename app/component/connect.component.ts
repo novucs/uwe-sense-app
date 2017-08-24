@@ -34,7 +34,6 @@ export class ConnectComponent implements OnInit {
                 private routerExtensions: RouterExtensions,
                 private route: ActivatedRoute,
                 private api: ApiService) {
-        console.log(JSON.stringify(route.snapshot.params));
         // this._accountId = route.snapshot.params["accountId"];
         // this._token = route.snapshot.params["token"];
         // for (let i = 0; i < 7; i++) {
@@ -70,10 +69,10 @@ export class ConnectComponent implements OnInit {
     }
 
     goAbout(): void {
-
-      this.routerExtensions.navigate(['/about'], {clearHistory: true});
+        const params = {page: "/connect"};
+        this.routerExtensions.navigate(['/about', params], {clearHistory: true});
     }
-    
+
     logout(): void {
         this._loggingOut = true;
         firebase.logout().then(() => {
