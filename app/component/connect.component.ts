@@ -61,6 +61,11 @@ export class ConnectComponent implements OnInit {
         });
     }
 
+    goAbout(): void {
+
+      this.routerExtensions.navigate(['/about'], {clearHistory: true});
+    }
+    
     logout(): void {
         this._loggingOut = true;
         firebase.logout().then(() => {

@@ -73,3 +73,16 @@ ListPicker {
     max-width: 300px;
     min-width: 100px;
 }
+
+Button.about{
+  color:blue;
+  background-color: white;
+  position:absolute;
+  bottom:0;
+}
+
+Button.back{
+  color:black;
+  background-color: white;
+  margin-left: 0px;
+}

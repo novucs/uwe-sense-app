@@ -8,6 +8,9 @@ import {ApiService} from "./app.service";
 import {PeripheralComponent} from "./component/peripheral.component";
 import {LoginComponent} from "./component/login.component";
 import {NativeScriptRouterModule} from "nativescript-angular";
+import {AboutComponent} from "./component/about.component";
+
+
 import {routes} from "./app.routing";
 
 @NgModule({
@@ -25,10 +28,12 @@ import {routes} from "./app.routing";
         AppComponent,
         ConnectComponent,
         PeripheralComponent,
-        LoginComponent
+        LoginComponent,
+        AboutComponent
     ],
     providers: [
         ApiService
+
     ],
     schemas: [
         NO_ERRORS_SCHEMA
