@@ -55,10 +55,9 @@ export class ApiService {
             headers: headers,
             content: JSON.stringify(data)
         }).then(response => {
-            console.log("Posted data: " + response);
-            console.log("Stringified data: " + response.content.toString());
+            console.log("Device creation response: " + response.content.toString());
         }, error => {
-            console.log("Error occurred: " + error);
+            console.log("Device creation error: " + error);
         });
     }
 
@@ -74,9 +73,27 @@ export class ApiService {
             headers: headers,
             content: JSON.stringify(data)
         }).then(response => {
-            console.log("Posted data: " + response);
+            console.log("Reading submission response: " + response.content.toString());
         }, error => {
-            console.log("Error occurred: " + error);
+            console.log("Reading submission error: " + error);
+        });
+    }
+
+    submitInfo(data: Info): void {
+        const headers = {
+            "Authorization": "Bearer " + this.authorisationJwt,
+            "Content-Type": "application/json"
+        };
+
+        http.request({
+            method: "POST",
+            url: this.dataPublishingUrl,
+            headers: headers,
+            content: JSON.stringify(data)
+        }).then(response => {
+            console.log("Info submission response: " + response.content.toString());
+        }, error => {
+            console.log("Info submission error: " + error);
         });
     }
 }
