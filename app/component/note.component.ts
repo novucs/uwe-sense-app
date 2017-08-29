@@ -1,4 +1,3 @@
-///<reference path="../../platforms/android/build/intermediates/assets/F0F1F2/debug/app/tns_modules/rxjs/src/Observable.ts"/>
 import {Component, OnInit} from "@angular/core";
 import {TextDecoder} from "text-encoding";
 import {ApiService, Info} from "../app.service";
