@@ -174,6 +174,7 @@ export class ConnectComponent implements OnInit {
                     console.log("Received data for " + typeId + ": " + value);
 
                     const reading: SensorReading = {
+                        session: this.api.getCurrentSession(),
                         deviceId: peripheral.UUID,
                         typeId: typeId,
                         timestamp: new Date(),
