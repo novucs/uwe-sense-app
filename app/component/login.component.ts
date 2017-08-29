@@ -44,7 +44,7 @@ export class LoginComponent implements OnInit {
                     this.loginStatus = "Authenticating";
                     this.api.authenticate(token, () => {
                         this.loginStatus = "Complete";
-                        this.routerExtensions.navigate(['/session'], {clearHistory: false}).then(() => {
+                        this.routerExtensions.navigate(['/session'], {clearHistory: true}).then(() => {
                             this.loggingIn = false;
                             alert("Successfully logged in as " + account.name);
                         });

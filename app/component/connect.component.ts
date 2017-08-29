@@ -49,6 +49,10 @@ export class ConnectComponent implements OnInit {
         this.routerExtensions.navigate(['/session'], {clearHistory: true});
     }
 
+    addNote(): void {
+        this.routerExtensions.navigate(['/note'], {clearHistory: false});
+    }
+
     scan(): void {
         let devicesFound = 0;
 
@@ -87,8 +91,6 @@ export class ConnectComponent implements OnInit {
 
     configure(peripheral: bluetooth.Peripheral): void {
         const params = {
-            // accountId: this._accountId,
-            // token: this._token,
             peripheralId: peripheral.UUID,
             peripheralName: peripheral.name
         };

@@ -64,12 +64,12 @@ export class PeripheralComponent implements OnInit {
             value: '0x' + time.toString(16)
         }).then(() => {
             dialogs.alert("Device successfully updated").then(() => {
-                this.routerExtensions.navigate(['/connect'], {clearHistory: true});
+                this.routerExtensions.back();
             });
         }, error => {
             console.log(error);
             dialogs.alert("Device update failed").then(() => {
-                this.routerExtensions.navigate(['/connect'], {clearHistory: true});
+                this.routerExtensions.back();
             });
         });
 
@@ -103,7 +103,7 @@ export class PeripheralComponent implements OnInit {
             bluetooth.disconnect({UUID: this.peripheral.UUID});
 
             dialogs.alert("Device successfully unregistered").then(() => {
-                this.routerExtensions.navigate(['/connect'], {clearHistory: true});
+                this.routerExtensions.back();
             });
         });
     }

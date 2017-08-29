@@ -4,8 +4,9 @@
         <Image src="res://logo" width="75%" horizontalAlignment="center"></Image>
         <Label text="Bristol Sense Manager" class="title"></Label>
         <Button text="Quit Session" (tap)="quitSession($event)"></Button>
+        <Button text="Add Note" (tap)="addNote($event)"></Button>
         <Button class="{{scanning ? 'special' : 'none'}}"
-                text="{{scanning ? 'Scanning \u27f2' : 'Scan'}}"
+                text="{{scanning ? 'Scanning \u27f2' : 'Scan for devices'}}"
                 (tap)="scan($event)"
                 isEnabled="{{!scanning}}"></Button>
 

@@ -10,6 +10,7 @@ import {LoginComponent} from "./component/login.component";
 import {NativeScriptRouterModule} from "nativescript-angular";
 import {AboutComponent} from "./component/about.component";
 import {SessionComponent} from "./component/session.component";
+import {NoteComponent} from "./component/note.component";
 
 @NgModule({
     bootstrap: [
@@ -28,6 +29,7 @@ import {SessionComponent} from "./component/session.component";
         SessionComponent,
         AboutComponent,
         ConnectComponent,
+        NoteComponent,
         PeripheralComponent
     ],
     providers: [
