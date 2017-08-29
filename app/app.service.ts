@@ -1,24 +1,28 @@
 import {Injectable} from "@angular/core";
 import "rxjs/add/operator/map";
-// import {Headers, Http, RequestOptions} from "@angular/http";
 const CryptoJS = require("crypto-js");
 const http = require("http");
 
 @Injectable()
 export class ApiService {
 
-    private baseUrl = "http://ec2-35-166-177-195.us-west-2.compute.amazonaws.com:8080";
-    private authenticateUrl = this.baseUrl + "/citizen-sensing/authenticate-user-jwt?provider=firebase";
-    private dataPublishingUrl = this.baseUrl + "/citizen-sensing/device-data-publishing";
-    private createDeviceUrl = this.baseUrl + "/citizen-sensing/register-device-with-hardware-id";
-    private authorisationJwt = "";
-    private idToken = "";
+    private baseUrl: string = "http://ec2-35-166-177-195.us-west-2.compute.amazonaws.com:8080";
+    private authenticateUrl: string = this.baseUrl + "/citizen-sensing/authenticate-user-jwt?provider=firebase";
+    private dataPublishingUrl: string = this.baseUrl + "/citizen-sensing/device-data-publishing";
+    private createDeviceUrl: string = this.baseUrl + "/citizen-sensing/register-device-with-hardware-id";
+    private authorisationJwt: string = "";
+    private idToken: string = "";
+    private session: Date;
 
     constructor() {
     }
 
     public setIdToken(token: string) {
         this.idToken = token;
+    }
+
+    public startNewSession() {
+        this.session = new Date();
     }
 
     private base64url(source) {
@@ -103,32 +107,7 @@ export class ApiService {
             console.log("Error occurred: " + error);
         });
     }
-
-    // submitSensorEntryPPB(entry: SensorEntryPPB) {
-    //     console.log(JSON.stringify(entry));
-    //     http.request({
-    //         url: "http://ec2-35-166-177-195.us-west-2.compute.amazonaws.com:8080/rt/http-data-publishing?apikey=b941bee8-afcf-479d-8f99-8862c4661b65",
-    //         // url: "https://httpbin.org/post",
-    //         method: "POST",
-    //         headers: {"Content-Type": "application/json"},
-    //         // content: JSON.stringify({uuid: "F0:26:AD:98:23:84", data: 7})
-    //         content: JSON.stringify(entry)
-    //     }).then(response => {
-    //         // const result = response.content.toJSON();
-    //         console.log("POSTED SENSOR PPB DATA");
-    //         console.log(response ? JSON.stringify(response.headers) : {});
-    //     }, error => {
-    //         console.log("Error occurred " + error);
-    //     });
-    // }
 }
-
-// Particles per billion read from an air monitor sensor at a particular time.
-// export interface SensorEntryPPB {
-//     uuid: string;    // The sensor unique identifier
-//     data: number;    // The particles per billion value
-//     timestamp: Date; // The time and date this data was read
-// }
 
 export interface Authenticate {
     email: string;
@@ -147,5 +126,8 @@ export interface CreateDevice {
     typeIds: string[];
 }
 
-export interface RequestDevices {
+export interface Info {
+    session: Date;
+    text: string;
+    timestamp: Date;
 }

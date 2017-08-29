@@ -1,6 +1,6 @@
 import {NgModule, NO_ERRORS_SCHEMA} from "@angular/core";
 import {NativeScriptModule} from "nativescript-angular/nativescript.module";
-import {AppRoutingModule} from "./app.routing";
+import {AppRoutingModule, routes} from "./app.routing";
 import {AppComponent} from "./app.component";
 
 import {ConnectComponent} from "./component/connect.component";
@@ -9,9 +9,7 @@ import {PeripheralComponent} from "./component/peripheral.component";
 import {LoginComponent} from "./component/login.component";
 import {NativeScriptRouterModule} from "nativescript-angular";
 import {AboutComponent} from "./component/about.component";
-
-
-import {routes} from "./app.routing";
+import {SessionComponent} from "./component/session.component";
 
 @NgModule({
     bootstrap: [
@@ -26,10 +24,11 @@ import {routes} from "./app.routing";
     ],
     declarations: [
         AppComponent,
-        ConnectComponent,
-        PeripheralComponent,
         LoginComponent,
-        AboutComponent
+        SessionComponent,
+        AboutComponent,
+        ConnectComponent,
+        PeripheralComponent
     ],
     providers: [
         ApiService

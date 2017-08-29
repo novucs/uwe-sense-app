@@ -3,9 +3,7 @@ import * as bluetooth from "nativescript-bluetooth";
 import {TextDecoder} from "text-encoding";
 import {ApiService, SensorReading} from "../app.service";
 import * as fileSystem from "file-system";
-import {ActivatedRoute} from "@angular/router";
 import {RouterExtensions} from "nativescript-angular";
-import firebase = require("nativescript-plugin-firebase");
 
 const SENSOR_SERVICE_ID: string = "a80b";
 const SCAN_DURATION_SECONDS: number = 4;
@@ -20,66 +18,35 @@ const NOTIFY_CHARACTERISTICS = {
 })
 export class ConnectComponent implements OnInit {
 
-    // private _accountId;
-    // private _token;
-    private _loggingOut: boolean = false;
-    private _scanning: boolean = false;
-    private _disconnectedKnownPeripherals = [];
-    private _disconnectedPeripherals = [];
-    private _connectedPeripherals = [];
-    private _connectingIds = new Set();
-    private _knownPeripheralsFile;
+    private scanning: boolean = false;
+    private disconnectedKnownPeripherals = [];
+    private disconnectedPeripherals = [];
+    private connectedPeripherals = [];
+    private connectingIds = new Set();
+    private knownPeripheralsFile;
 
     constructor(private zone: NgZone,
                 private routerExtensions: RouterExtensions,
-                private route: ActivatedRoute,
                 private api: ApiService) {
-        // this._accountId = route.snapshot.params["accountId"];
-        // this._token = route.snapshot.params["token"];
-        // for (let i = 0; i < 7; i++) {
-        //     let peripheral = {
-        //         UUID: '6544' + i,
-        //         name: 'Device #' + i,
-        //         RSSI: 1,
-        //         services: [],
-        //         battery: Math.round(Math.random() * 100)
-        //     };
-        //
-        //     if (Math.random() < .5) {
-        //         this._knownPeripherals.push(peripheral);
-        //     } else {
-        //         this._discoveredPeripherals.push(peripheral);
-        //     }
-        // }
     }
 
     ngOnInit(): void {
-        this._knownPeripheralsFile = fileSystem.knownFolders.currentApp().getFile("known-peripherals.json");
-        this._knownPeripheralsFile.readText().then(content => {
+        this.knownPeripheralsFile = fileSystem.knownFolders.currentApp().getFile("known-peripherals.json");
+        this.knownPeripheralsFile.readText().then(content => {
             if (!content) {
                 return;
             }
 
-            this._disconnectedKnownPeripherals = JSON.parse(content);
+            this.disconnectedKnownPeripherals = JSON.parse(content);
 
-            for (let i = 0; i < this._disconnectedKnownPeripherals.length; i++) {
-                this.connect(this._disconnectedKnownPeripherals[i], false);
+            for (let i = 0; i < this.disconnectedKnownPeripherals.length; i++) {
+                this.connect(this.disconnectedKnownPeripherals[i], false);
             }
         });
     }
 
-    goAbout(): void {
-        const params = {page: "/connect"};
-        this.routerExtensions.navigate(['/about', params], {clearHistory: true});
-    }
-
-    logout(): void {
-        this._loggingOut = true;
-        firebase.logout().then(() => {
-            this.routerExtensions.navigate(['/login'], {clearHistory: false}).then(() => {
-                alert("Successfully logged out!")
-            });
-        });
+    quitSession(): void {
+        this.routerExtensions.navigate(['/session'], {clearHistory: true});
     }
 
     scan(): void {
@@ -92,25 +59,25 @@ export class ConnectComponent implements OnInit {
 
             console.log("STARTING SCANNING");
 
-            this._scanning = true;
+            this.scanning = true;
             bluetooth.startScanning({
                 serviceUUIDs: [SENSOR_SERVICE_ID],
                 seconds: SCAN_DURATION_SECONDS,
                 onDiscovered: peripheral => {
-                    if (this.findPeripheral(this._disconnectedKnownPeripherals, peripheral.UUID)) {
+                    if (ConnectComponent.findPeripheral(this.disconnectedKnownPeripherals, peripheral.UUID)) {
                         this.connect(peripheral, true);
                         devicesFound++;
                         return;
                     }
 
-                    if (!this.findPeripheral(this._disconnectedPeripherals, peripheral.UUID)) {
-                        this._disconnectedPeripherals.push(peripheral);
+                    if (!ConnectComponent.findPeripheral(this.disconnectedPeripherals, peripheral.UUID)) {
+                        this.disconnectedPeripherals.push(peripheral);
                         devicesFound++;
                         return;
                     }
                 }
-            }).then(a => {
-                this._scanning = false;
+            }).then(() => {
+                this.scanning = false;
                 alert("Scan complete, " + devicesFound + " devices found.");
             }).catch(error => {
                 alert("Scanning error: " + error);
@@ -130,12 +97,12 @@ export class ConnectComponent implements OnInit {
     }
 
     connect(peripheral: any, msg: boolean): void {
-        if (this._connectingIds.has(peripheral.UUID)) {
+        if (this.connectingIds.has(peripheral.UUID)) {
             alert("Already connecting to " + peripheral.name);
             return;
         }
 
-        this._connectingIds.add(peripheral.UUID);
+        this.connectingIds.add(peripheral.UUID);
         peripheral.connecting = true;
         bluetooth.connect({
             UUID: peripheral.UUID,
@@ -145,9 +112,9 @@ export class ConnectComponent implements OnInit {
                     alert("Connected to " + peripheral.name);
                 }
             },
-            onDisconnected: data => {
-                this._connectingIds.delete(peripheral.UUID);
-                this.deletePeripheral(this._connectedPeripherals, peripheral.UUID);
+            onDisconnected: () => {
+                this.connectingIds.delete(peripheral.UUID);
+                ConnectComponent.deletePeripheral(this.connectedPeripherals, peripheral.UUID);
                 peripheral.connecting = false;
                 this.zone.run(() => {
                 }); // Force page refresh, for some reason it doesn't naturally update here.
@@ -158,10 +125,10 @@ export class ConnectComponent implements OnInit {
 
     connectCallback(peripheral: bluetooth.Peripheral): void {
         // Save peripherals.
-        this._connectedPeripherals.push(peripheral);
-        const serializedPeripherals = JSON.stringify(Array.from(this._connectedPeripherals));
+        this.connectedPeripherals.push(peripheral);
+        const serializedPeripherals = JSON.stringify(Array.from(this.connectedPeripherals));
 
-        this._knownPeripheralsFile.writeText(serializedPeripherals).then(() => {
+        this.knownPeripheralsFile.writeText(serializedPeripherals).then(() => {
             console.log("Successfully saved known devices to file");
         });
 
@@ -172,9 +139,9 @@ export class ConnectComponent implements OnInit {
             return;
         }
 
-        this.deletePeripheral(this._disconnectedKnownPeripherals, peripheral.UUID);
-        this.deletePeripheral(this._disconnectedPeripherals, peripheral.UUID);
-        this.addPeripheral(this._connectedPeripherals, peripheral);
+        ConnectComponent.deletePeripheral(this.disconnectedKnownPeripherals, peripheral.UUID);
+        ConnectComponent.deletePeripheral(this.disconnectedPeripherals, peripheral.UUID);
+        ConnectComponent.addPeripheral(this.connectedPeripherals, peripheral);
         this.zone.run(() => {
         }); // Force page refresh, for some reason it doesn't naturally update here.
 
@@ -221,12 +188,12 @@ export class ConnectComponent implements OnInit {
         }
     }
 
-    addPeripheral(peripherals: any[], peripheral: any): void {
-        this.deletePeripheral(peripherals, peripheral.UUID);
+    static addPeripheral(peripherals: any[], peripheral: any): void {
+        ConnectComponent.deletePeripheral(peripherals, peripheral.UUID);
         peripherals.push(peripheral);
     }
 
-    deletePeripheral(peripherals: any[], peripheralId: string): void {
+    static deletePeripheral(peripherals: any[], peripheralId: string): void {
         for (let i = 0; i < peripherals.length; i++) {
             if (peripherals[i].UUID == peripheralId) {
                 peripherals.splice(i, 1);
@@ -234,7 +201,7 @@ export class ConnectComponent implements OnInit {
         }
     }
 
-    findPeripheral(peripherals: any[], uuid: string) {
+    static findPeripheral(peripherals: any[], uuid: string) {
         for (let peripheral of peripherals) {
             if (peripheral.UUID == uuid) {
                 return peripheral;

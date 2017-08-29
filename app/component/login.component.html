@@ -3,11 +3,10 @@
     <StackLayout class="page" orientation="vertical">
         <Image src="res://logo" width="75%" horizontalAlignment="center"></Image>
         <Label text="Bristol Sense Login" class="title"></Label>
-        <Button class="{{_signingIn ? 'special' : 'none'}}"
-                text="{{_signingIn ? 'Logging In \u27f2' : 'Login'}}"
+        <Button class="{{ loggingIn ? 'special' : 'none' }}"
+                text="{{ loggingIn ? loginStatus : 'Login' }}"
                 (tap)="login($event)"
                 ng-init="count=0"
-                isEnabled="{{!_signingIn}}"></Button>
-        <Button text="About" (tap)="goAbout($event)"></Button>
+                isEnabled="{{ !loggingIn }}"></Button>
     </StackLayout>
 </ScrollView>

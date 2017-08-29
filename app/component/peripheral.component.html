@@ -1,17 +1,17 @@
 <ActionBar title="Bristol Sense" class="action-bar"></ActionBar>
 <ScrollView>
     <StackLayout class="page" orientation="vertical">
-        <Label text="Configure {{ _peripheral.name }}" class="title"></Label>
+        <Label text="Configure {{ peripheral.name }}" class="title"></Label>
         <Label text="Resample rate (hh:mm:ss)" class="subtitle"></Label>
         <StackLayout class="page" orientation="horizontal" horizontalAlignment="center">
-            <ListPicker class="timepicker" [items]="_zeroToTwentyFour" (selectedIndexChange)="changeHours($event)"></ListPicker>
-            <ListPicker class="timepicker" [items]="_zeroToSixty" (selectedIndexChange)="changeMinutes($event)"></ListPicker>
-            <ListPicker class="timepicker" [items]="_zeroToSixty" (selectedIndexChange)="changeSeconds($event)"></ListPicker>
+            <ListPicker class="timepicker" [items]="zeroToTwentyFour" (selectedIndexChange)="changeHours($event)"></ListPicker>
+            <ListPicker class="timepicker" [items]="zeroToSixty" (selectedIndexChange)="changeMinutes($event)"></ListPicker>
+            <ListPicker class="timepicker" [items]="zeroToSixty" (selectedIndexChange)="changeSeconds($event)"></ListPicker>
         </StackLayout>
-        <Button class="{{_updating ? 'special' : 'none'}}"
-                text="{{_updating ? 'Updating \u27f2' : 'Update'}}"
+        <Button class="{{ updating ? 'special' : 'none' }}"
+                text="{{ updating ? 'Updating \u27f2' : 'Update' }}"
                 (tap)="update($event)"
-                isEnabled="{{!_updating}}"></Button>
+                isEnabled="{{ !updating }}"></Button>
         <Button class="special" text="Unregister" (tap)="unregister($event)"></Button>
     </StackLayout>
 </ScrollView>

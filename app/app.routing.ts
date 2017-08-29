@@ -6,13 +6,15 @@ import {ConnectComponent} from "./component/connect.component";
 import {PeripheralComponent} from "./component/peripheral.component";
 import {LoginComponent} from "./component/login.component";
 import {AboutComponent} from "./component/about.component";
+import {SessionComponent} from "./component/session.component";
 
 export const routes: Routes = [
     {path: "", redirectTo: "/login", pathMatch: "full"},
     {path: "login", component: LoginComponent},
-    {path: "peripheral", component: PeripheralComponent},
-    {path: "connect", component: ConnectComponent},
+    {path: "session", component: SessionComponent},
     {path: "about", component: AboutComponent},
+    {path: "connect", component: ConnectComponent},
+    {path: "peripheral", component: PeripheralComponent},
 ];
 
 @NgModule({

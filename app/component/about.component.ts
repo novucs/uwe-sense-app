@@ -10,17 +10,17 @@ import {ActivatedRoute} from "@angular/router";
 })
 export class AboutComponent implements OnInit {
 
-    private _previousPage: string;
+    private previousPage: string;
 
     constructor(private routerExtensions: RouterExtensions,
                 private route: ActivatedRoute) {
-        this._previousPage = route.snapshot.params["page"];
+        this.previousPage = route.snapshot.params["page"];
     }
 
     ngOnInit(): void {
     }
 
     back() {
-        this.routerExtensions.navigate([this._previousPage], {clearHistory: true});
+        this.routerExtensions.navigate([this.previousPage], {clearHistory: true});
     }
 }

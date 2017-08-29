@@ -18,48 +18,47 @@ const SENSOR_CHARACTERISTIC_WRITE_ID: string = "b4fbc6ce-380f-4ec1-be0a-d163efcf
 })
 export class PeripheralComponent implements OnInit {
 
-    // private _accountId;
-    // private _token;
-    private _updating: boolean = false;
-    private _zeroToSixty = Array(60).fill(1, 61).map((x, i) => i);
-    private _zeroToTwentyFour = Array(24).fill(1, 25).map((x, i) => i);
-    private _peripheral;
-    private _knownPeripherals = [];
-    private _knownPeripheralsFile;
+    private updating: boolean = false;
+    private peripheral;
+    private knownPeripherals = [];
+    private knownPeripheralsFile;
 
-    private _seconds;
-    private _minutes;
-    private _hours;
+    private seconds;
+    private minutes;
+    private hours;
+
+    // noinspection JSUnusedLocalSymbols
+    private zeroToSixty = Array(60).fill(1, 61).map((x, i) => i);
+    // noinspection JSUnusedLocalSymbols
+    private zeroToTwentyFour = Array(24).fill(1, 25).map((x, i) => i);
 
     constructor(private routerExtensions: RouterExtensions,
                 private route: ActivatedRoute,
                 private api: ApiService) {
-        // this._accountId = route.snapshot.params["accountId"];
-        // this._token = route.snapshot.params["token"];
-        this._peripheral = {
+        this.peripheral = {
             UUID: route.snapshot.params["peripheralId"],
             name: route.snapshot.params["peripheralName"]
         };
     }
 
     ngOnInit(): void {
-        this._knownPeripheralsFile = fileSystem.knownFolders.currentApp().getFile("known-peripherals.json");
-        this._knownPeripheralsFile.readText().then(content => {
+        this.knownPeripheralsFile = fileSystem.knownFolders.currentApp().getFile("known-peripherals.json");
+        this.knownPeripheralsFile.readText().then(content => {
             if (!content) {
                 return;
             }
 
-            this._knownPeripherals = JSON.parse(content);
+            this.knownPeripherals = JSON.parse(content);
         });
     }
 
     update(): void {
-        this._updating = true;
+        this.updating = true;
 
-        const time = (this._hours * 60 * 60) + (this._minutes * 60) + this._seconds;
+        const time = (this.hours * 60 * 60) + (this.minutes * 60) + this.seconds;
 
         bluetooth.write({
-            peripheralUUID: this._peripheral.UUID,
+            peripheralUUID: this.peripheral.UUID,
             serviceUUID: SENSOR_SERVICE_ID,
             characteristicUUID: SENSOR_CHARACTERISTIC_WRITE_ID,
             value: '0x' + time.toString(16)
@@ -74,12 +73,12 @@ export class PeripheralComponent implements OnInit {
             });
         });
 
-        this._updating = false;
+        this.updating = false;
     }
 
     unregister(): void {
         dialogs.confirm({
-            title: "Unregister " + this._peripheral.name,
+            title: "Unregister " + this.peripheral.name,
             message: "Are you sure you wish to unregister this device?",
             okButtonText: "Yes",
             cancelButtonText: "No",
@@ -90,18 +89,18 @@ export class PeripheralComponent implements OnInit {
             }
 
             // TODO: Unregister the device.
-            for (let i = 0; i < this._knownPeripherals.length; i++) {
-                if (this._knownPeripherals[i].UUID == this._peripheral.UUID) {
-                    this._knownPeripherals.splice(i, 1);
+            for (let i = 0; i < this.knownPeripherals.length; i++) {
+                if (this.knownPeripherals[i].UUID == this.peripheral.UUID) {
+                    this.knownPeripherals.splice(i, 1);
                 }
             }
-            const serializedPeripherals = JSON.stringify(Array.from(this._knownPeripherals));
+            const serializedPeripherals = JSON.stringify(Array.from(this.knownPeripherals));
             console.log("WRITING: " + serializedPeripherals);
-            this._knownPeripheralsFile.writeText(serializedPeripherals).then(value => {
+            this.knownPeripheralsFile.writeText(serializedPeripherals).then(value => {
                 console.log("WRITE SUCCESS: " + value);
             });
 
-            bluetooth.disconnect({UUID: this._peripheral.UUID});
+            bluetooth.disconnect({UUID: this.peripheral.UUID});
 
             dialogs.alert("Device successfully unregistered").then(() => {
                 this.routerExtensions.navigate(['/connect'], {clearHistory: true});
@@ -111,16 +110,16 @@ export class PeripheralComponent implements OnInit {
 
     public changeHours(args) {
         let picker = <ListPicker>args.object;
-        this._hours = picker.selectedIndex;
+        this.hours = picker.selectedIndex;
     }
 
     public changeMinutes(args) {
         let picker = <ListPicker>args.object;
-        this._minutes = picker.selectedIndex;
+        this.minutes = picker.selectedIndex;
     }
 
     public changeSeconds(args) {
         let picker = <ListPicker>args.object;
-        this._seconds = picker.selectedIndex;
+        this.seconds = picker.selectedIndex;
     }
 }

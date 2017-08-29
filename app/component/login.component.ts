@@ -1,6 +1,6 @@
 import {Component, OnInit} from "@angular/core";
 import {TextDecoder} from "text-encoding";
-import {ApiService, Authenticate} from "../app.service";
+import {ApiService} from "../app.service";
 import {RouterExtensions} from "nativescript-angular";
 import firebase = require("nativescript-plugin-firebase");
 
@@ -11,8 +11,9 @@ import firebase = require("nativescript-plugin-firebase");
 })
 export class LoginComponent implements OnInit {
 
-    private _signingIn: boolean = false;
-    private _firebaseInitialized: boolean = false;
+    private loginStatus: string = "";
+    private loggingIn: boolean = false;
+    private fireBaseInitComplete: boolean = false;
 
     constructor(private routerExtensions: RouterExtensions,
                 private api: ApiService) {
@@ -24,40 +25,50 @@ export class LoginComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        if (this._firebaseInitialized) {
-            return;
-        }
-
-        firebase.init({}).then(
-            value => {
-                this._firebaseInitialized = true;
-                firebase.getCurrentUser().then(value => JSON.stringify("Current user: " + value));
-            }
-        );
     }
 
-    login(): void {
-        if (this._signingIn) {
+    public login() {
+        if (this.loggingIn) {
+            alert("Already logging in");
             return;
         }
 
-        this._signingIn = true;
+        this.loggingIn = true;
+        this.loginStatus = "Initializing";
 
-        firebase.login({
-            type: firebase.LoginType.GOOGLE
-        }).then(account => {
+        this.initFirebase(() => {
+            this.loginStatus = "Logging in";
+            firebase.login({type: firebase.LoginType.GOOGLE}).then(account => {
+                this.loginStatus = "Fetching authentication token";
                 firebase.getAuthToken({forceRefresh: true}).then(token => {
-                    this.api.authenticate(token, success => {
-                        this.routerExtensions.navigate(['/connect'], {clearHistory: false}).then(() => {
+                    this.loginStatus = "Authenticating";
+                    this.api.authenticate(token, () => {
+                        this.loginStatus = "Complete";
+                        this.routerExtensions.navigate(['/session'], {clearHistory: false}).then(() => {
+                            this.loggingIn = false;
                             alert("Successfully logged in as " + account.name);
                         });
                     }, error => {
-                        alert("Login failed: " + error);
+                        alert("Failed to login: " + error);
                     });
                 });
             }, error => {
-                alert("An error occurred during login: " + error);
-            }
-        );
+                alert("Failed to login: " + error);
+            });
+        });
+    }
+
+    public initFirebase(callback: () => any) {
+        if (this.fireBaseInitComplete) {
+            callback();
+            return;
+        }
+
+        firebase.init({}).then(() => {
+            this.fireBaseInitComplete = true;
+            callback();
+        }, () => {
+            callback();
+        });
     }
 }
