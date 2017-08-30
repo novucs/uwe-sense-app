@@ -19,6 +19,7 @@ const NOTIFY_CHARACTERISTICS = {
 export class ConnectComponent implements OnInit {
 
     private scanning: boolean = false;
+    private scanningText: string = "Scanning";
     private disconnectedKnownPeripherals = [];
     private disconnectedPeripherals = [];
     private connectedPeripherals = [];
@@ -61,9 +62,15 @@ export class ConnectComponent implements OnInit {
                 bluetooth.requestCoarseLocationPermission();
             }
 
-            console.log("STARTING SCANNING");
-
             this.scanning = true;
+            this.scanningText = "Scanning (" + SCAN_DURATION_SECONDS + " seconds remain)";
+
+            for (let i = 1; i < SCAN_DURATION_SECONDS; i++) {
+                setTimeout(() => {
+                    this.scanningText = "Scanning (" + i + " seconds remain)";
+                }, (SCAN_DURATION_SECONDS - i) * 1000);
+            }
+
             bluetooth.startScanning({
                 serviceUUIDs: [SENSOR_SERVICE_ID],
                 seconds: SCAN_DURATION_SECONDS,
