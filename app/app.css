@@ -74,8 +74,8 @@ ListPicker {
     min-width: 100px;
 }
 
-Button.back{
-  color:black;
-  background-color: white;
-  margin-left: 0px;
+Button.back {
+    color: black;
+    background-color: white;
+    margin-left: 0px;
 }

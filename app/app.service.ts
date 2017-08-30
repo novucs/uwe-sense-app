@@ -1,5 +1,6 @@
 import {Injectable} from "@angular/core";
 import "rxjs/add/operator/map";
+import * as geolocation from "nativescript-geolocation";
 
 const http = require("http");
 
@@ -11,9 +12,18 @@ export class ApiService {
     private dataPublishingUrl: string = this.baseUrl + "/citizen-sensing/device-data-publishing";
     private createDeviceUrl: string = this.baseUrl + "/citizen-sensing/register-device-with-hardware-id";
     private authorisationJwt: string = "";
+    private locationEnabled: boolean = false;
     private session: Date;
 
     constructor() {
+    }
+
+    public isLocationEnabled(): boolean {
+        return this.locationEnabled;
+    }
+
+    public setLocationEnabled(enabled: boolean) {
+        this.locationEnabled = enabled;
     }
 
     public startNewSession(): void {
@@ -26,6 +36,8 @@ export class ApiService {
 
     authenticate(token: string, successCallback: (success: string) => any, errorCallback: (error: string) => any): void {
         const headers = {};
+
+        console.log("Sending authentication token: " + token);
 
         http.request({
             method: "POST",
@@ -43,11 +55,12 @@ export class ApiService {
     }
 
     createDevice(data: CreateDevice): void {
-        console.log("Authorization token: " + this.authorisationJwt);
         const headers = {
             "Authorization": "Bearer " + this.authorisationJwt,
             "Content-Type": "application/json"
         };
+
+        console.log("Sending create device: " + JSON.stringify(data));
 
         http.request({
             method: "POST",
@@ -67,33 +80,66 @@ export class ApiService {
             "Content-Type": "application/json"
         };
 
-        http.request({
-            method: "POST",
-            url: this.dataPublishingUrl,
-            headers: headers,
-            content: JSON.stringify(data)
-        }).then(response => {
-            console.log("Reading submission response: " + response.content.toString());
-        }, error => {
-            console.log("Reading submission error: " + error);
+        this.addLocation(data, () => {
+            console.log("Sending sensor reading: " + JSON.stringify(data));
+            http.request({
+                method: "POST",
+                url: this.dataPublishingUrl,
+                headers: headers,
+                content: JSON.stringify(data)
+            }).then(response => {
+                console.log("Reading submission response: " + response.content.toString());
+            }, error => {
+                console.log("Reading submission error: " + error);
+            });
         });
     }
 
-    submitInfo(data: Info): void {
+    submitNote(data: Note): void {
         const headers = {
             "Authorization": "Bearer " + this.authorisationJwt,
             "Content-Type": "application/json"
         };
 
-        http.request({
-            method: "POST",
-            url: this.dataPublishingUrl,
-            headers: headers,
-            content: JSON.stringify(data)
-        }).then(response => {
-            console.log("Info submission response: " + response.content.toString());
-        }, error => {
-            console.log("Info submission error: " + error);
+        this.addLocation(data, () => {
+            console.log("Sending note: " + JSON.stringify(data));
+            http.request({
+                method: "POST",
+                url: this.dataPublishingUrl,
+                headers: headers,
+                content: JSON.stringify(data)
+            }).then(response => {
+                console.log("Note submission response: " + response.content.toString());
+            }, error => {
+                console.log("Note submission error: " + error);
+            });
+        });
+    }
+
+    private addLocation(data: LocationData, callback: () => any) {
+        if (!this.locationEnabled) {
+            callback();
+            return;
+        }
+
+        if (!geolocation.isEnabled()) {
+            geolocation.enableLocationRequest(true).then(() => {
+                geolocation.getCurrentLocation({}).then(location => {
+                    data.location = location;
+                    callback();
+                }, () => {
+                    callback();
+                });
+            }, () => {
+                callback();
+            });
+        }
+
+        geolocation.getCurrentLocation({}).then(location => {
+            data.location = location;
+            callback();
+        }, () => {
+            callback();
         });
     }
 }
@@ -103,7 +149,11 @@ export interface CreateDevice {
     typeIds: string[];
 }
 
-export interface SensorReading {
+export interface LocationData {
+    location?: geolocation.Location;
+}
+
+export interface SensorReading extends LocationData {
     session: Date;
     deviceId: string;
     typeId: string;
@@ -111,7 +161,7 @@ export interface SensorReading {
     data: number;
 }
 
-export interface Info {
+export interface Note extends LocationData {
     session: Date;
     text: string;
     timestamp: Date;

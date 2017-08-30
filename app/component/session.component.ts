@@ -2,6 +2,7 @@ import {Component, OnInit} from "@angular/core";
 import {TextDecoder} from "text-encoding";
 import {ApiService} from "../app.service";
 import {RouterExtensions} from "nativescript-angular";
+import * as geolocation from "nativescript-geolocation";
 import firebase = require("nativescript-plugin-firebase");
 
 @Component({
@@ -11,6 +12,7 @@ import firebase = require("nativescript-plugin-firebase");
 })
 export class SessionComponent implements OnInit {
 
+    private locationEnabled: boolean = false;
     private loggingOut: boolean = false;
 
     constructor(private routerExtensions: RouterExtensions,
@@ -18,11 +20,26 @@ export class SessionComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        this.locationEnabled = this.api.isLocationEnabled();
     }
 
     startSession(): void {
         this.api.startNewSession();
         this.routerExtensions.navigate(['/connect'], {clearHistory: true});
+    }
+
+    toggleLocationTracking(): void {
+        if (this.locationEnabled) {
+            this.locationEnabled = false;
+            this.api.setLocationEnabled(false);
+        } else {
+            if (!geolocation.isEnabled()) {
+                geolocation.enableLocationRequest(true);
+            }
+
+            this.locationEnabled = true;
+            this.api.setLocationEnabled(true);
+        }
     }
 
     goAbout(): void {

@@ -1,6 +1,6 @@
 import {Component, OnInit} from "@angular/core";
 import {TextDecoder} from "text-encoding";
-import {ApiService, Info} from "../app.service";
+import {ApiService, Note} from "../app.service";
 import {RouterExtensions} from "nativescript-angular";
 
 @Component({
@@ -20,13 +20,13 @@ export class NoteComponent implements OnInit {
     }
 
     public submit(): void {
-        const info: Info = {
+        const info: Note = {
             session: this.api.getCurrentSession(),
             text: this.note,
             timestamp: new Date()
         };
 
-        this.api.submitInfo(info);
+        this.api.submitNote(info);
         this.routerExtensions.back();
         alert("Note successfully created!");
     }
