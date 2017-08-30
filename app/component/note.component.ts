@@ -31,6 +31,10 @@ export class NoteComponent implements OnInit {
         alert("Note successfully created!");
     }
 
+    public back(): void {
+        this.routerExtensions.back();
+    }
+
     public updateNote(event) {
         this.note = event.value;
     }
